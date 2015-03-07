@@ -8,19 +8,56 @@ import testing ;
 
 project
   : requirements
-    <warnings>all
-    <warnings-as-errors>on
     <include>.
-    <toolset>gcc:<cxxflags>-std=c++11
-    <toolset>gcc:<cxxflags>-Wextra
-    <toolset>gcc:<cxxflags>-pedantic
-    <toolset>gcc:<linkflags>-lboost_unit_test_framework
-    <toolset>clang:<cxxflags>-std=c++11
-    <toolset>clang:<cxxflags>-Wextra
-    <toolset>clang:<cxxflags>-pedantic
-    <toolset>clang:<linkflags>-lboost_unit_test_framework
-    <define>BOOST_TEST_DYN_LINK=1
-  : build-dir bin.v2
   ;
 
-run yaul/variant/${unit}.cpp  : : : : yaul/variant/${unit} ;
+# Metafunctions in yaul/variant
+run yaul/variant/variant_find.cpp               : : : : yaul/variant/variant_find ;
+## run yaul/variant/variant_contains.cpp     : : : : yaul/variant/variant_contains ;
+run yaul/variant/variant_element.cpp            : : : : yaul/variant/variant_element ;
+run yaul/variant/variant_size.cpp               : : : : yaul/variant/variant_size ;
+
+# Metafunctions in yaul/variant/detail
+run yaul/variant/detail/static_max.cpp          : : : : yaul/variant/detail/static_max ;
+run yaul/variant/detail/variant_storage.cpp     : : : : yaul/variant/detail/variant_storage ;
+run yaul/variant/detail/variant_which.cpp       : : : : yaul/variant/detail/variant_which ;
+run yaul/variant/detail/substitute.cpp          : : : : yaul/variant/detail/substitute ;
+run yaul/variant/detail/enable_recursive.cpp    : : : : yaul/variant/detail/enable_recursive ;
+
+# The variant
+run yaul/variant/variant_dtor1.cpp              : : : : yaul/variant/variant_dtor1 ;
+run yaul/variant/variant_ctors1.cpp             : : : : yaul/variant/variant_ctors1 ;
+run yaul/variant/variant_ctors2.cpp             : : : : yaul/variant/variant_ctors2 ;
+run yaul/variant/variant_ctors3.cpp             : : : : yaul/variant/variant_ctors3 ;
+run yaul/variant/variant_ctors4.cpp             : : : : yaul/variant/variant_ctors4 ;
+run yaul/variant/variant_assign1.cpp            : : : : yaul/variant/variant_assign1 ;
+run yaul/variant/variant_assign2.cpp            : : : : yaul/variant/variant_assign2 ;
+run yaul/variant/variant_assign3.cpp            : : : : yaul/variant/variant_assign3 ;
+run yaul/variant/variant_visit1.cpp             : : : : yaul/variant/variant_visit1 ;
+run yaul/variant/variant_noexcept1.cpp          : : : : yaul/variant/variant_noexcept1 ;
+run yaul/variant/variant_relations1.cpp         : : : : yaul/variant/variant_relations1 ;
+run yaul/variant/variant_others1.cpp            : : : : yaul/variant/variant_others1 ;
+
+# Recursive wrapper
+run yaul/variant/recursive_wrapper1.cpp         : : : : yaul/variant/recursive_wrapper1 ;
+
+# Recursive variant
+run yaul/variant/recursive_variant1.cpp         : : : : yaul/variant/recursive_variant1 ;
+
+
+# The visitor stuff
+run yaul/variant/detail/apply_visitor_unary1.cpp        : : : : yaul/variant/detail/apply_visitor_unary1 ;
+run yaul/variant/detail/apply_visitor_binary1.cpp       : : : : yaul/variant/detail/apply_visitor_binary1 ;
+run yaul/variant/detail/apply_visitor_binary2.cpp       : : : : yaul/variant/detail/apply_visitor_binary2 ;
+run yaul/variant/detail/multivisitors_cpp11_based00.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based00 ;
+run yaul/variant/detail/multivisitors_cpp11_based01.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based01 ;
+run yaul/variant/detail/multivisitors_cpp11_based02.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based02 ;
+run yaul/variant/detail/multivisitors_cpp11_based03.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based03 ;
+run yaul/variant/detail/multivisitors_cpp11_based04.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based04 ;
+run yaul/variant/detail/multivisitors_cpp11_based05.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based05 ;
+run yaul/variant/detail/multivisitors_cpp11_based06.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based06 ;
+run yaul/variant/detail/multivisitors_cpp11_based07.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based07 ;
+run yaul/variant/detail/multivisitors_cpp11_based08.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based08 ;
+run yaul/variant/detail/multivisitors_cpp11_based09.cpp : : : : yaul/variant/detail/multivisitors_cpp11_based09 ;
+
+#run yaul/variant/${unit}.cpp                  : : : : yaul/variant/${unit} ;

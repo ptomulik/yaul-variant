@@ -13,8 +13,8 @@
 #ifndef YAUL_VARIANT_APPLY_VISITOR_HPP
 #define YAUL_VARIANT_APPLY_VISITOR_HPP
 
-namespace yaul {
-} // end namespace yaul
+#include <yaul/variant/detail/apply_visitor_unary.hpp>
+#include <yaul/variant/detail/apply_visitor_binary.hpp>
 
 #endif /* YAUL_VARIANT_APPLY_VISITOR_HPP */
 // vim: set expandtab tabstop=2 shiftwidth=2:

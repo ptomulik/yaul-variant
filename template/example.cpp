@@ -4,10 +4,15 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
-/** // doc: yaul/variant/${unit}.cpp {{{
+/** // doc: file yaul/variant/${unit}.cpp {{{
  * \file
- * \brief Usage example for yaul::variant::${class}
- * \example yaul/variant/${unit}.cpp
+ * \brief Usage example for \ref yaul::variant::${class} "${class}"
+ */ // }}}
+/** // doc: example ${unit}.cpp {{{
+ * \example ${unit}.cpp
+ *
+ * Usage example for \ref yaul::variant::${class} "${class}"
+ *
  * \todo Write documentation
  */ // }}}
 
