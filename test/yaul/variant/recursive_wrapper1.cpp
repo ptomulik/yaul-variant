@@ -20,7 +20,7 @@ void test__recursive_wrapper__01()
     YAUL_VARIANT_CHECK_EQUALS(w.get(), 1);
   }
   {
-    static_assert(is_same<decltype(yaul::recursive_wrapper<int>{1}.get()), int&>::value, "");
+    static_assert(is_same<decltype(yaul::recursive_wrapper<int>{1}.get()), int&&>::value, "");
     YAUL_VARIANT_CHECK_EQUALS(yaul::recursive_wrapper<int>{1}.get(), 1);
   }
   {
@@ -69,9 +69,50 @@ void test__recursive_wrapper__02()
 
 }
 
+template<typename> struct F01;
+template<typename> struct F02;
+
+namespace yaul { namespace detail {
+template< typename T >
+  struct is_recursive_wrapper_impl<F02<T> >
+    : std::integral_constant<bool, true>
+    { };
+} } // end namespace yaul::detail
+
+void test__is_recursive_wrapper__01()
+{
+  
+  static_assert(!yaul::is_recursive_wrapper<int>::value, "");
+  static_assert(!yaul::is_recursive_wrapper<F01<int> >::value, "");
+  static_assert( yaul::is_recursive_wrapper<F02<int> >::value, "");
+  static_assert( yaul::is_recursive_wrapper<const F02<int> >::value, "");
+  static_assert( yaul::is_recursive_wrapper<volatile F02<int> >::value, "");
+  static_assert( yaul::is_recursive_wrapper<const volatile F02<int> >::value, "");
+  static_assert( yaul::is_recursive_wrapper<yaul::recursive_wrapper<int> >::value, "");
+  static_assert( yaul::is_recursive_wrapper<const yaul::recursive_wrapper<int> >::value, "");
+  static_assert( yaul::is_recursive_wrapper<volatile yaul::recursive_wrapper<int> >::value, "");
+  static_assert( yaul::is_recursive_wrapper<const volatile yaul::recursive_wrapper<int> >::value, "");
+}
+
+void test__unwrap_recursive_wrapper__01()
+{
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<int>::type, int>::value, "");
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<F01<int> >::type, F01<int> >::value, "");
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<F02<int> >::type, int>::value, "");
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<const F02<int> >::type, const int>::value, "");
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<volatile F02<int> >::type, volatile int>::value, "");
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<const volatile F02<int> >::type, const volatile int>::value, "");
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<yaul::recursive_wrapper<int> >::type, int>::value, "");
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<const yaul::recursive_wrapper<int> >::type, const int>::value, "");
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<volatile yaul::recursive_wrapper<int> >::type, volatile int>::value, "");
+  static_assert(std::is_same<yaul::unwrap_recursive_wrapper<const volatile yaul::recursive_wrapper<int> >::type, const volatile int>::value, "");
+}
+
 int main()
 {
   test__recursive_wrapper__01();
   test__recursive_wrapper__02();
+  test__is_recursive_wrapper__01();
+  test__unwrap_recursive_wrapper__01();
   return YAUL_VARIANT_TEST_EXIT_CODE;
 }

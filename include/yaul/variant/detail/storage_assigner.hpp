@@ -41,7 +41,7 @@ template< typename S, typename T, typename... Others>
     typedef int result_type;
   };
 /** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
-template< std::size_t I, typename S, typename T, typename... Others>
+template< std::size_t I, typename S, typename T, typename... Others >
   struct storage_assigner_impl<I, S, T, Others...>
     : storage_assigner_impl<I+1ul, S, Others...>
   {
@@ -51,67 +51,76 @@ template< std::size_t I, typename S, typename T, typename... Others>
     using Base::operator();
     using Base::which;
 
-    int operator()(T& t) const&&
+    //
+    // Assignments for ordinary elements
+    //
+    template< typename TT = T >
+    typename std::enable_if<!yaul::is_recursive_wrapper<TT>::value, int>::type
+    operator()(T& t) const&&
       noexcept(noexcept(std::declval<T&>() = t))
     {
       reinterpret_cast<T&>(std::move(*this).storage_) = t;
       return static_cast<int>(I);
     }
-    int operator()(T const& t) const&&
+
+    template< typename TT = T >
+    typename std::enable_if<!yaul::is_recursive_wrapper<TT>::value, int>::type
+    operator()(T const& t) const&&
       noexcept(noexcept(std::declval<T&>() = t))
     {
       reinterpret_cast<T&>(std::move(*this).storage_) = t;
       return static_cast<int>(I);
     }
-    int operator()(T&& t) const&&
+
+    template< typename TT = T >
+    typename std::enable_if<!yaul::is_recursive_wrapper<TT>::value, int>::type
+    operator()(T&& t) const&&
       noexcept(noexcept(std::declval<T&>() = std::move(t)))
     {
       reinterpret_cast<T&>(std::move(*this).storage_) = std::move(t);
       return static_cast<int>(I);
     }
 
-    int which(T&) const&& noexcept { return static_cast<int>(I); }
-    int which(T const&) const&& noexcept { return static_cast<int>(I); }
-    int which(T&&) const&& noexcept { return static_cast<int>(I); }
+    template< typename TT = T >
+    typename std::enable_if<!yaul::is_recursive_wrapper<TT>::value, int>::type
+    operator()(T const&& t) const&&
+      noexcept(noexcept(std::declval<T&>() = std::move(t)))
+    {
+      reinterpret_cast<T&>(std::move(*this).storage_) = std::move(t);
+      return static_cast<int>(I);
+    }
 
-  protected:
-    using Base::storage_;
-  };
 
-
-//
-// Specialization for yaul::recursive_wrapper<>.
-//
-// this specialization is provided to break infinite cycles in noexcept(...)
-// computation (withohut this, endless recursion occur when working with
-// recursive variants).
-//
-// note, that each variant involving recursive_wrapper is not nothrow-assignable
-// because recursive_wrapper is not nothrow-copy-constructible (althrough it
-// may be nothrow-assignable, consider recursive_wrapper<int> as example).
-//
-template< std::size_t I, typename S, typename TT, typename... Others>
-  struct storage_assigner_impl<I, S, yaul::recursive_wrapper<TT>, Others...>
-    : storage_assigner_impl<I+1ul, S, Others...>
-  {
-  public:
-    using Base = storage_assigner_impl<I+1ul, S, Others...>;
-    using Base::Base;
-    using Base::operator();
-    using Base::which;
-    using T = yaul::recursive_wrapper<TT>;
-
-    int operator()(T& t) const&&
+    //
+    // Assignments for recursive wrappers (noexcept(...) removed)
+    //
+    template< typename TT = T >
+    typename std::enable_if<yaul::is_recursive_wrapper<TT>::value, int>::type
+    operator()(T& t) const&&
     {
       reinterpret_cast<T&>(std::move(*this).storage_) = t;
       return static_cast<int>(I);
     }
-    int operator()(T const& t) const&&
+
+    template< typename TT = T >
+    typename std::enable_if<yaul::is_recursive_wrapper<TT>::value, int>::type
+    operator()(T const& t) const&&
     {
       reinterpret_cast<T&>(std::move(*this).storage_) = t;
       return static_cast<int>(I);
     }
-    int operator()(T&& t) const&&
+
+    template< typename TT = T >
+    typename std::enable_if<yaul::is_recursive_wrapper<TT>::value, int>::type
+    operator()(T&& t) const&&
+    {
+      reinterpret_cast<T&>(std::move(*this).storage_) = std::move(t);
+      return static_cast<int>(I);
+    }
+
+    template< typename TT = T >
+    typename std::enable_if<yaul::is_recursive_wrapper<TT>::value, int>::type
+    operator()(T const&& t) const&&
     {
       reinterpret_cast<T&>(std::move(*this).storage_) = std::move(t);
       return static_cast<int>(I);

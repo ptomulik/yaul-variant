@@ -85,10 +85,15 @@ template< typename T >
 
   public: // queries
 
-      T& get() noexcept { return *get_pointer(); }
-      const T& get() const noexcept { return *get_pointer(); }
-      volatile T& get() volatile noexcept { return *get_pointer(); }
-      const volatile T& get() const volatile noexcept { return *get_pointer(); }
+      T& get() & noexcept { return *get_pointer(); }
+      const T& get() const & noexcept { return *get_pointer(); }
+      volatile T& get() volatile & noexcept { return *get_pointer(); }
+      const volatile T& get() const volatile & noexcept { return *get_pointer(); }
+
+      T&& get() && noexcept { return std::move(*get_pointer()); }
+      const T&& get() const && noexcept { return std::move(*get_pointer()); }
+      volatile T&& get() volatile && noexcept { return std::move(*get_pointer()); }
+      const volatile T&& get() const volatile && noexcept { return std::move(*get_pointer()); }
 
       T* get_pointer() noexcept { return p_; }
       const T* get_pointer() const noexcept { return p_; }

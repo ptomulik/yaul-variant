@@ -16,7 +16,10 @@
 #include <type_traits>
 
 namespace yaul {
+
 template< typename T > class recursive_wrapper;
+template< typename T > struct is_recursive_wrapper;
+
 } // end namespace yaul
 
 namespace yaul { namespace detail {
@@ -26,10 +29,27 @@ template< typename T >
     : std::integral_constant<bool, false>
   { };
 
+/** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
 template< typename T >
   struct is_recursive_wrapper_impl< ::yaul::recursive_wrapper<T> >
     : std::integral_constant<bool, true>
   { };
+/** \endcond */
+
+template< typename T, bool IsWrapper = yaul::is_recursive_wrapper<T>::value >
+  struct unwrap_recursive_wrapper_impl
+  {
+    typedef T type;
+  };
+
+/** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
+template< template <typename...> class F, typename T >
+  struct unwrap_recursive_wrapper_impl<F<T>, true>
+  {
+    typedef T type;
+  };
+/** \endcond */
+
 } } // end namespace yaul::detail
 
 namespace yaul {
@@ -38,40 +58,29 @@ template< typename T >
     : detail::is_recursive_wrapper_impl<typename std::remove_cv<T>::type>
   { };
 
+/** // doc: unwrap_recursive_wrapper {{{
+ * \todo Write documentation
+ */ // }}}
 template< typename T >
-  struct wrap_recursive
-  { typedef recursive_wrapper<T> type; };
-
-template< typename T >
-  struct unwrap_recursive
-  { typedef T type; };
-
+  struct unwrap_recursive_wrapper
+    : detail::unwrap_recursive_wrapper_impl<T>
+  { };
 /** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
 template< typename T >
-  struct wrap_recursive<T const>
-  { typedef const typename wrap_recursive<T>::type type; };
+  struct unwrap_recursive_wrapper<T const>
+  {
+    typedef typename unwrap_recursive_wrapper<T>::type const type;
+  };
 template< typename T >
-  struct wrap_recursive<T volatile>
-  { typedef volatile typename wrap_recursive<T>::type type; };
+  struct unwrap_recursive_wrapper<T volatile>
+  {
+    typedef typename unwrap_recursive_wrapper<T>::type volatile type;
+  };
 template< typename T >
-  struct wrap_recursive<T const volatile>
-  { typedef const volatile typename wrap_recursive<T>::type type; };
-
-template< typename T >
-  struct unwrap_recursive< recursive_wrapper<T> >
-  { typedef T type; };
-template< typename T >
-  struct unwrap_recursive< const recursive_wrapper<T> >
-    : std::add_const<T>
-  { };
-template< typename T >
-  struct unwrap_recursive< volatile recursive_wrapper<T> >
-    : std::add_volatile<T>
-  { };
-template< typename T >
-  struct unwrap_recursive< const volatile recursive_wrapper<T> >
-    : std::add_cv<T>
-  { };
+  struct unwrap_recursive_wrapper<T const volatile>
+  {
+    typedef typename unwrap_recursive_wrapper<T>::type const volatile type;
+  };
 /** \endcond */
 } // end namespace yaul
 

@@ -10,8 +10,8 @@
  * \file yaul/variant/recursive_variant_fwd.hpp
  * \todo Write documentation
  */ // }}}
-#ifndef YAUL_VARIANT_FWD_RECURSIVE_VARIANT_FWD_HPP
-#define YAUL_VARIANT_FWD_RECURSIVE_VARIANT_FWD_HPP
+#ifndef YAUL_VARIANT_RECURSIVE_VARIANT_FWD_HPP
+#define YAUL_VARIANT_RECURSIVE_VARIANT_FWD_HPP
 
 namespace yaul {
 /** \ingroup FixMe FIXME:
@@ -23,6 +23,6 @@ struct recursive_variant_{};
 /** @} */
 } // end namespace yaul
 
-#endif /* YAUL_VARIANT_FWD_RECURSIVE_VARIANT_FWD_HPP */
+#endif /* YAUL_VARIANT_RECURSIVE_VARIANT_FWD_HPP */
 // vim: set expandtab tabstop=2 shiftwidth=2:
 // vim: set foldmethod=marker foldcolumn=4:

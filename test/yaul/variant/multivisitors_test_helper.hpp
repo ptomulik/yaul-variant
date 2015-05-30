@@ -6,12 +6,12 @@
 
 // yaul/variant/detail/multivisitors_test_helper.hpp
 
-/** // doc: yaul/variant/detail/multivisitors_test_helper.hpp {{{
- * \file yaul/variant/detail/multivisitors_test_helper.hpp
+/** // doc: yaul/variant/multivisitors_test_helper.hpp {{{
+ * \file yaul/variant/multivisitors_test_helper.hpp
  * \todo Write documentation
  */ // }}}
-#ifndef YAUL_VARIANT_DETAIL_MULTIVISITORS_TEST_HELPER_HPP
-#define YAUL_VARIANT_DETAIL_MULTIVISITORS_TEST_HELPER_HPP
+#ifndef YAUL_VARIANT_MULTIVISITORS_TEST_HELPER_HPP
+#define YAUL_VARIANT_MULTIVISITORS_TEST_HELPER_HPP
 
 struct V01
 {
@@ -144,6 +144,6 @@ int V01::i1;
 int V01::i2;
 int V01::i3;
 
-#endif /* YAUL_VARIANT_DETAIL_MULTIVISITORS_TEST_HELPER_HPP */
+#endif /* YAUL_VARIANT_MULTIVISITORS_TEST_HELPER_HPP */
 // vim: set expandtab tabstop=2 shiftwidth=2:
 // vim: set foldmethod=marker foldcolumn=4:

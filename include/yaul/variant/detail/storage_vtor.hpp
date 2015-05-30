@@ -79,12 +79,87 @@ template< std::size_t I, typename S, typename T, typename... Others>
     typename std::remove_reference<F>::type::result_type // FIXME: elaborate
     operator()(S&& s, F&& f) const&&
       noexcept(
-          noexcept(std::forward<F>(f)(detail::variant::storage_cast<T&&>(s))) &&
+          noexcept(std::forward<F>(f)(detail::variant::storage_cast<T&&>(std::move(s)))) &&
           noexcept(std::declval<storage_vtor_impl const&&>().Base::operator()(std::move(s), std::forward<F>(f)))
       )
     {
       if(I == which_)
-        return std::forward<F>(f)(detail::variant::storage_cast<T&&>(s));
+        return std::forward<F>(f)(detail::variant::storage_cast<T&&>(std::move(s)));
+      else
+        return std::move(*this).Base::operator()(std::move(s), std::forward<F>(f));
+    }
+
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S const&& s, F&& f) const&&
+      noexcept(
+          noexcept(std::forward<F>(f)(detail::variant::storage_cast<T const&&>(std::move(s)))) &&
+          noexcept(std::declval<storage_vtor_impl const&&>().Base::operator()(std::move(s), std::forward<F>(f)))
+      )
+    {
+      if(I == which_)
+        return std::forward<F>(f)(detail::variant::storage_cast<T const&&>(std::move(s)));
+      else
+        return std::move(*this).Base::operator()(std::move(s), std::forward<F>(f));
+    }
+
+  protected:
+    using Base::which_;
+  };
+
+//
+// specialization for recursive_variant<TT>, breaks the endless recursions that
+// would occur in noexcept(...) deduction
+//
+template< std::size_t I, typename S, typename TT, typename... Others>
+  struct storage_vtor_impl<I, S, recursive_variant<TT>, Others...>
+    : storage_vtor_impl<I+1ul, S, Others...>
+  {
+    using Base = storage_vtor_impl<I+1ul, S, Others...>;
+    using Base::Base;
+    using Base::operator();
+    using T = recursive_variant<TT>;
+
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S& s, F&& f) const&&
+      noexcept
+    {
+      if(I == which_)
+        return std::forward<F>(f)(detail::variant::storage_cast<T&>(s));
+      else
+        return std::move(*this).Base::operator()(s, std::forward<F>(f));
+    }
+
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S const& s, F&& f) const&&
+      noexcept
+    {
+      if(I == which_)
+        return std::forward<F>(f)(detail::variant::storage_cast<T const&>(s));
+      else
+        return std::move(*this).Base::operator()(s, std::forward<F>(f));
+    }
+
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S&& s, F&& f) const&&
+      noexcept
+    {
+      if(I == which_)
+        return std::forward<F>(f)(detail::variant::storage_cast<T&&>(std::move(s)));
+      else
+        return std::move(*this).Base::operator()(std::move(s), std::forward<F>(f));
+    }
+
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S const&& s, F&& f) const&&
+      noexcept
+    {
+      if(I == which_)
+        return std::forward<F>(f)(detail::variant::storage_cast<T const&&>(std::move(s)));
       else
         return std::move(*this).Base::operator()(std::move(s), std::forward<F>(f));
     }
@@ -95,10 +170,12 @@ template< std::size_t I, typename S, typename T, typename... Others>
 
 template< std::size_t I, typename S, typename T>
   struct storage_vtor_impl<I, S, T>
-    : storage_vtor_impl<I+1ul, S>
   {
-    using Base = storage_vtor_impl<I+1ul, S>;
-    using Base::Base;
+    storage_vtor_impl() = delete;
+
+    storage_vtor_impl(int which) noexcept
+      : which_(which)
+    { }
 
     template<typename F>
     typename std::remove_reference<F>::type::result_type // FIXME: elaborate
@@ -119,27 +196,70 @@ template< std::size_t I, typename S, typename T>
     template<typename F>
     typename std::remove_reference<F>::type::result_type // FIXME: elaborate
     operator()(S&& s, F&& f) const&&
-      noexcept( noexcept(std::forward<F>(f)(detail::variant::storage_cast<T&&>(s))) )
+      noexcept( noexcept(std::forward<F>(f)(detail::variant::storage_cast<T&&>(std::move(s)))) )
     {
-      return std::forward<F>(f)(detail::variant::storage_cast<T&&>(s));
+      return std::forward<F>(f)(detail::variant::storage_cast<T&&>(std::move(s)));
+    }
+
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S const&& s, F&& f) const&&
+      noexcept( noexcept(std::forward<F>(f)(detail::variant::storage_cast<T const&&>(std::move(s)))) )
+    {
+      return std::forward<F>(f)(detail::variant::storage_cast<T const&&>(std::move(s)));
     }
 
   protected:
-    using Base::which_;
+    int which_;
   };
 
-template< std::size_t I, typename S>
-  struct storage_vtor_impl<I, S>
+template< std::size_t I, typename S, typename TT>
+  struct storage_vtor_impl<I, S, recursive_variant<TT> >
   {
+    using T = recursive_variant<TT>;
+
     storage_vtor_impl() = delete;
 
     storage_vtor_impl(int which) noexcept
       : which_(which)
     { }
 
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S& s, F&& f) const&&
+      noexcept
+    {
+      return std::forward<F>(f)(detail::variant::storage_cast<T&>(s));
+    }
+
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S const& s, F&& f) const&&
+      noexcept
+    {
+      return std::forward<F>(f)(detail::variant::storage_cast<T const&>(s));
+    }
+
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S&& s, F&& f) const&&
+      noexcept
+    {
+      return std::forward<F>(f)(detail::variant::storage_cast<T&&>(std::move(s)));
+    }
+
+    template<typename F>
+    typename std::remove_reference<F>::type::result_type // FIXME: elaborate
+    operator()(S const&& s, F&& f) const&&
+      noexcept
+    {
+      return std::forward<F>(f)(detail::variant::storage_cast<T const&&>(std::move(s)));
+    }
+
   protected:
     int which_;
   };
+
 /** \endcond */
 /** @} */
 } } } // end namespace yaul::detail::variant

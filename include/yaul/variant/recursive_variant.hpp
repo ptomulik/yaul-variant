@@ -4,22 +4,21 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
-// yaul/variant/recursive_variant.hpp
+// yaul/variant/yaul::detail::variant::recursive_variant.hpp
 
-/** // doc: yaul/variant/recursive_variant.hpp {{{
- * \file yaul/variant/recursive_variant.hpp
+/** // doc: yaul/variant/yaul::detail::variant::recursive_variant.hpp {{{
+ * \file yaul/variant/yaul::detail::variant::recursive_variant.hpp
  * \todo Write documentation
  */ // }}}
 #ifndef YAUL_VARIANT_RECURSIVE_VARIANT_HPP
 #define YAUL_VARIANT_RECURSIVE_VARIANT_HPP
 
 #include <yaul/variant/variant.hpp>
-#include <yaul/variant/recursive_wrapper.hpp>
-#include <yaul/variant/detail/recursive_flag.hpp>
 #include <yaul/variant/recursive_variant_fwd.hpp>
+#include <yaul/variant/detail/recursive_flag.hpp>
+#include <yaul/variant/detail/recursive_variant.hpp>
 
 namespace yaul {
-
 template< typename T0, typename... Others > 
   struct make_recursive_variant
   {
@@ -28,7 +27,6 @@ template< typename T0, typename... Others >
       , Others...
       > type;
   };
-
 } // end namespace yaul
 
 #endif /* YAUL_VARIANT_RECURSIVE_VARIANT_HPP */

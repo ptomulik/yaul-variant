@@ -4,7 +4,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <yaul/variant/detail/multivisitors_cpp11_based.hpp>
+#include <yaul/variant/multivisitors.hpp>
 #include <yaul/variant/variant.hpp>
 #include <yaul/variant/test_config.hpp>
 #include <type_traits>

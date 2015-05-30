@@ -13,8 +13,6 @@
 #ifndef YAUL_VARIANT_DETAIL_SUBSTITUTE_HPP
 #define YAUL_VARIANT_DETAIL_SUBSTITUTE_HPP
 
-#include <boost/variant/variant_fwd.hpp>
-
 namespace yaul { namespace detail { namespace variant {
 /** \ingroup FixMe FIXME:
  * @{ */

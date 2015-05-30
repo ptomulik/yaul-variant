@@ -4,12 +4,12 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <yaul/variant/detail/multivisitors_cpp11_based.hpp>
+#include <yaul/variant/multivisitors.hpp>
 #include <yaul/variant/variant.hpp>
 #include <yaul/variant/test_config.hpp>
 #include <type_traits>
 #include <tuple>
-#include <yaul/variant/detail/multivisitors_test_helper.hpp>
+#include <yaul/variant/multivisitors_test_helper.hpp>
 
 void test__apply_visitor__01()
 {
@@ -17,9 +17,9 @@ void test__apply_visitor__01()
   typedef yaul::variant<double,int,char> X2;
   typedef yaul::variant<float,int> X3;
 
-  // V01 const&
+  // V01&
   {
-    V01 const v{};
+    V01 v;
     // X1 const&
     {
       X1 const x1{1};
@@ -31,7 +31,7 @@ void test__apply_visitor__01()
           X3 x3{3};
           V01::i1 = 0; V01::i2 = 0; V01::i3 = 0;
           static_assert(noexcept(apply_visitor(v,x1,x2,x3)), "");
-          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,x3), 0x2121111);
+          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,x3), 0x1121111);
           YAUL_VARIANT_CHECK_EQUALS(V01::i1, 1);
           YAUL_VARIANT_CHECK_EQUALS(V01::i2, 2);
           YAUL_VARIANT_CHECK_EQUALS(V01::i3, 3);
@@ -41,7 +41,7 @@ void test__apply_visitor__01()
           X3 const x3{3};
           V01::i1 = 0; V01::i2 = 0; V01::i3 = 0;
           static_assert(noexcept(apply_visitor(v,x1,x2,x3)), "");
-          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,x3), 0x2121112);
+          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,x3), 0x1121112);
           YAUL_VARIANT_CHECK_EQUALS(V01::i1, 1);
           YAUL_VARIANT_CHECK_EQUALS(V01::i2, 2);
           YAUL_VARIANT_CHECK_EQUALS(V01::i3, 3);
@@ -50,7 +50,7 @@ void test__apply_visitor__01()
         {
           V01::i1 = 0; V01::i2 = 0; V01::i3 = 0;
           static_assert(noexcept(apply_visitor(v,x1,x2,X3{3})), "");
-          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,X3{3}), 0x2121113);
+          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,X3{3}), 0x1121113);
           YAUL_VARIANT_CHECK_EQUALS(V01::i1, 1);
           YAUL_VARIANT_CHECK_EQUALS(V01::i2, 2);
           YAUL_VARIANT_CHECK_EQUALS(V01::i3, 3);
@@ -64,7 +64,7 @@ void test__apply_visitor__01()
           X3 x3{3};
           V01::i1 = 0; V01::i2 = 0; V01::i3 = 0;
           static_assert(noexcept(apply_visitor(v,x1,x2,x3)), "");
-          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,x3), 0x2121211);
+          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,x3), 0x1121211);
           YAUL_VARIANT_CHECK_EQUALS(V01::i1, 1);
           YAUL_VARIANT_CHECK_EQUALS(V01::i2, 2);
           YAUL_VARIANT_CHECK_EQUALS(V01::i3, 3);
@@ -74,7 +74,7 @@ void test__apply_visitor__01()
           X3 const x3{3};
           V01::i1 = 0; V01::i2 = 0; V01::i3 = 0;
           static_assert(noexcept(apply_visitor(v,x1,x2,x3)), "");
-          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,x3), 0x2121212);
+          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,x3), 0x1121212);
           YAUL_VARIANT_CHECK_EQUALS(V01::i1, 1);
           YAUL_VARIANT_CHECK_EQUALS(V01::i2, 2);
           YAUL_VARIANT_CHECK_EQUALS(V01::i3, 3);
@@ -83,7 +83,7 @@ void test__apply_visitor__01()
         {
           V01::i1 = 0; V01::i2 = 0; V01::i3 = 0;
           static_assert(noexcept(apply_visitor(v,x1,x2,X3{3})), "");
-          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,X3{3}), 0x2121213);
+          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,x2,X3{3}), 0x1121213);
           YAUL_VARIANT_CHECK_EQUALS(V01::i1, 1);
           YAUL_VARIANT_CHECK_EQUALS(V01::i2, 2);
           YAUL_VARIANT_CHECK_EQUALS(V01::i3, 3);
@@ -96,7 +96,7 @@ void test__apply_visitor__01()
           X3 x3{3};
           V01::i1 = 0; V01::i2 = 0; V01::i3 = 0;
           static_assert(noexcept(apply_visitor(v,x1,X2{2},x3)), "");
-          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,X2{2},x3), 0x2121311);
+          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,X2{2},x3), 0x1121311);
           YAUL_VARIANT_CHECK_EQUALS(V01::i1, 1);
           YAUL_VARIANT_CHECK_EQUALS(V01::i2, 2);
           YAUL_VARIANT_CHECK_EQUALS(V01::i3, 3);
@@ -106,7 +106,7 @@ void test__apply_visitor__01()
           X3 const x3{3};
           V01::i1 = 0; V01::i2 = 0; V01::i3 = 0;
           static_assert(noexcept(apply_visitor(v,x1,X2{2},x3)), "");
-          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,X2{2},x3), 0x2121312);
+          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,X2{2},x3), 0x1121312);
           YAUL_VARIANT_CHECK_EQUALS(V01::i1, 1);
           YAUL_VARIANT_CHECK_EQUALS(V01::i2, 2);
           YAUL_VARIANT_CHECK_EQUALS(V01::i3, 3);
@@ -115,7 +115,7 @@ void test__apply_visitor__01()
         {
           V01::i1 = 0; V01::i2 = 0; V01::i3 = 0;
           static_assert(noexcept(apply_visitor(v,x1,X2{2},X3{3})), "");
-          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,X2{2},X3{3}), 0x2121313);
+          YAUL_VARIANT_CHECK_EQUALS(apply_visitor(v,x1,X2{2},X3{3}), 0x1121313);
           YAUL_VARIANT_CHECK_EQUALS(V01::i1, 1);
           YAUL_VARIANT_CHECK_EQUALS(V01::i2, 2);
           YAUL_VARIANT_CHECK_EQUALS(V01::i3, 3);

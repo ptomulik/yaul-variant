@@ -21,10 +21,13 @@
 #include <yaul/variant/detail/storage_vtor.hpp>
 #include <yaul/variant/detail/storage_assigner.hpp>
 #include <yaul/variant/detail/variant_assigner.hpp>
+#include <yaul/variant/detail/variant_getter.hpp>
 #include <yaul/variant/detail/reflect.hpp>
 #include <yaul/variant/detail/relations.hpp>
 #include <yaul/variant/apply_visitor.hpp>
 #include <yaul/variant/assert.hpp>
+#include <yaul/variant/bad_get.hpp>
+#include <yaul/variant/variant_find.hpp>
 #include <utility>
 #include <type_traits>
 
@@ -72,7 +75,7 @@ template<typename T0, typename... Others>
       return which_ < 0;
     }
 
-  public:
+  public: // queries
 
     int which() const noexcept
     {
@@ -92,6 +95,81 @@ template<typename T0, typename... Others>
     const std::type_info& type() const noexcept
     {
       return apply_visitor(detail::variant::reflect());
+    }
+
+
+  public: // value access
+
+    template< typename U >
+    typename std::add_pointer<U>::type
+    get_ptr() & noexcept
+    {
+      using T = typename std::add_pointer<U>::type;
+      if(variant_find<U,variant>::value != which())
+        return nullptr;
+      return apply_visitor(detail::variant::variant_getter<T>());
+    }
+
+    template< typename U >
+    typename std::add_pointer<
+      typename std::add_const<U>::type
+    >::type
+    get_ptr() const& noexcept
+    {
+      using T = typename std::add_pointer<
+        typename std::add_const<U>::type
+      >::type;
+      if(variant_find<U,variant>::value != which())
+        return nullptr;
+      return apply_visitor(detail::variant::variant_getter<T>());
+    }
+
+    template< typename U >
+    typename std::add_lvalue_reference<U>::type
+    get() &
+    {
+      using T = typename std::add_lvalue_reference<U>::type;
+      if(variant_find<U, variant>::value != which())
+        throw yaul::bad_get();
+      return apply_visitor(detail::variant::variant_getter<T>());
+    }
+
+    template< typename U >
+    typename std::add_lvalue_reference<
+      typename std::add_const<U>::type
+    >::type&
+    get() const&
+    {
+      using T = typename std::add_lvalue_reference<
+        typename std::add_const<U>::type
+      >::type;
+      if(variant_find<U, variant>::value != which())
+        throw yaul::bad_get();
+      return apply_visitor(detail::variant::variant_getter<T>());
+    }
+
+    template< typename U >
+    typename std::add_rvalue_reference<U>::type
+    get() &&
+    {
+      using T = typename std::add_rvalue_reference<U>::type;
+      if(variant_find<U, variant>::value != which())
+        throw yaul::bad_get();
+      return std::move(*this).apply_visitor(detail::variant::variant_getter<T>());
+    }
+
+    template< typename U >
+    typename std::add_rvalue_reference<
+      typename std::add_const<U>::type
+    >::type
+    get() const &&
+    {
+      using T = typename std::add_rvalue_reference<
+        typename std::add_const<U>::type
+      >::type;
+      if(variant_find<U, variant>::value != which())
+        throw yaul::bad_get();
+      return std::move(*this).apply_visitor(detail::variant::variant_getter<T>());
     }
 
   public: // ctors
@@ -265,7 +343,16 @@ template<typename T0, typename... Others>
         noexcept( noexcept(s_vtor_t(int())(std::declval<storage_t&&>(), std::forward<Visitor>(v))) )
     {
       YAUL_VARIANT_ASSERT((0 <= which()) && (static_cast<std::size_t>(which()) < (1ul + sizeof...(Others))));
-      return s_vtor_t(which())(std::move(storage_), std::forward<Visitor>(v));
+      return s_vtor_t(which())(std::move(*this).storage_, std::forward<Visitor>(v));
+    }
+
+    template<typename Visitor>
+    typename std::remove_reference<Visitor>::type::result_type // FIXME: elaborate
+    apply_visitor(Visitor&& v) const&&
+        noexcept( noexcept(s_vtor_t(int())(std::declval<storage_t const&&>(), std::forward<Visitor>(v))) )
+    {
+      YAUL_VARIANT_ASSERT((0 <= which()) && (static_cast<std::size_t>(which()) < (1ul + sizeof...(Others))));
+      return s_vtor_t(which())(std::move(*this).storage_, std::forward<Visitor>(v));
     }
 
   public: // relational

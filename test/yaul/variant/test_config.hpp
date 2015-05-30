@@ -15,6 +15,12 @@
 
 #include <iostream>
 
+namespace yaul { namespace variant_test {
+static int exit_code = 0;
+} } // end namespace yaul::variant_test
+
+#define YAUL_VARIANT_TEST_EXIT_CODE yaul::variant_test::exit_code
+
 #define YAUL_VARIANT_STRINGIZE(x) YAUL_VARIANT_STRINGIZE2(x)
 #define YAUL_VARIANT_STRINGIZE2(x) #x
 
@@ -25,19 +31,33 @@
   if(!(cond)) \
     { \
       YAUL_VARIANT_PRINT_ERR_MSG("expected (" << #cond << ") to be true"); \
-      yaul_variant_test_err = 1; \
+      YAUL_VARIANT_TEST_EXIT_CODE = 1; \
     }
 
 #define YAUL_VARIANT_CHECK_EQUALS(x, y) \
   if(!(x == y)) \
     { \
       YAUL_VARIANT_PRINT_ERR_MSG("expected (" << #x << "==" << #y << "), found (" << (x) << "!=" << (y) << ")"); \
-      yaul_variant_test_err = 1; \
+      YAUL_VARIANT_TEST_EXIT_CODE = 1; \
     }
 
-static int yaul_variant_test_err = 0;
-
-#define YAUL_VARIANT_TEST_EXIT_CODE yaul_variant_test_err
+#define YAUL_VARIANT_CHECK_THROWS(code, except) \
+    do { \
+      bool f = false; \
+      try { \
+        { code; } \
+      } catch(except const&) { \
+        f = true; \
+      } catch(...) { \
+        YAUL_VARIANT_PRINT_ERR_MSG("expected " << #code  << " to throw " << #except << " but it thrown something else"); \
+        YAUL_VARIANT_TEST_EXIT_CODE = 1; \
+        f = true; \
+      } \
+      if(!f) { \
+        YAUL_VARIANT_PRINT_ERR_MSG("expected " << #code << " to throw " << #except << " but nothing was thrown"); \
+        YAUL_VARIANT_TEST_EXIT_CODE = 1; \
+      } \
+    } while(0);
 
 #endif /* YAUL_VARIANT_TEST_CONFIG_HPP */
 // vim: set expandtab tabstop=2 shiftwidth=2:

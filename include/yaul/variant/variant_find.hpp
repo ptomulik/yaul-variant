@@ -13,16 +13,37 @@
 #ifndef YAUL_VARIANT_VARIANT_FIND_HPP
 #define YAUL_VARIANT_VARIANT_FIND_HPP
 
+#include <yaul/variant/recursive_wrapper_fwd.hpp>
+#include <yaul/variant/detail/recursive_flag.hpp>
+#include <yaul/variant/detail/enable_recursive.hpp>
+#include <yaul/variant/variant_fwd.hpp>
 #include <cstddef>
+#include <type_traits>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup DetailMetafunctionsGroup
+/** \ingroup FixMe FIXME
  * @{ */
-/** // doc: variant_find_impl {{{
- * \todo Write documentation
- */ // }}}
-template< typename U, typename Variant, std::size_t I = 0ul >
-struct variant_find_impl;
+template< std::size_t I, typename U, typename... Types >
+  struct variant_find_impl;
+
+/** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
+template< std::size_t I, typename U, typename T0, typename... Others >
+  struct variant_find_impl<I, U, T0, Others...>
+    : variant_find_impl< I+1, U, Others... >
+  { };
+
+// type matched...
+template< std::size_t I, typename U, typename... Others >
+  struct variant_find_impl<I, typename unwrap_recursive_wrapper<U>::type, U, Others... >
+    : std::integral_constant<std::size_t, I>
+  { };
+
+// nothing found, end of search
+template< std::size_t I, typename U >
+  struct variant_find_impl< I, U >
+    : std::integral_constant<std::size_t, I>
+  { };
+/** \endcond */
 /** @} */
 } } } // end namespace yaul::detail::variant
 
@@ -33,38 +54,22 @@ namespace yaul {
  * \todo Write documentation
  */ // }}}
 template< typename U, typename Variant >
-  struct variant_find
-    : detail::variant::variant_find_impl<U, Variant>
-  { };
-/** @} */
-} // end namespace yaul
+  struct variant_find;
 
-#include <yaul/variant/variant_fwd.hpp>
-#include <type_traits>
-
-namespace yaul { namespace detail { namespace variant {
-/** \ingroup DetailMetafunctionsGroup
- * @{ */
 /** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
-template< typename U, std::size_t I, typename T0, typename... Others >
-  struct variant_find_impl<U, yaul::variant<T0,Others...>, I>
-    : variant_find_impl<U, yaul::variant<Others...>, I+1>
-  { };
-template< typename U, std::size_t I, typename... Others >
-  struct variant_find_impl<U, yaul::variant<U,Others...>, I>
-    : std::integral_constant<std::size_t, I>
-  { };
-template< typename U, std::size_t I >
-  struct variant_find_impl<U, yaul::variant<U>, I>
-    : std::integral_constant<std::size_t, I>
-  { };
-template< typename U, typename T0, std::size_t I >
-  struct variant_find_impl<U, yaul::variant<T0>, I>
-    : std::integral_constant<std::size_t, I+1>
-  { };
+template< typename U, typename T0, typename... Others>
+  struct variant_find<U, variant<T0, Others...> >
+    : detail::variant::variant_find_impl<0ul, U, T0, Others...>
+  {
+  };
+template< typename U, typename T0, typename... Others>
+  struct variant_find<U, variant<detail::variant::recursive_flag<T0>, Others...> >
+    : detail::variant::variant_find_impl<0ul, U, T0, Others...>
+  {
+  };
 /** \endcond */
 /** @} */
-} } } // end namespace yaul::detail::variant
+} // end namespace yaul
 
 
 #endif /* YAUL_VARIANT_VARIANT_FIND_HPP */

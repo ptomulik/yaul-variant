@@ -14,9 +14,8 @@
 #define YAUL_VARIANT_DETAIL_ENABLE_RECURSIVE_HPP
 
 #include <yaul/variant/detail/substitute.hpp>
-//#include <yaul/variant/detail/recursive_flag.hpp>
-#include <yaul/variant/recursive_wrapper.hpp>
 #include <yaul/variant/recursive_variant_fwd.hpp>
+#include <yaul/variant/detail/recursive_variant_fwd.hpp>
 #include <yaul/variant/detail/enable_recursive_fwd.hpp>
 
 #include <type_traits>
@@ -38,13 +37,13 @@ template< typename T, typename RecursiveVariant >
   private:
     typedef typename substitute<T, RecursiveVariant, yaul::recursive_variant_>::type t_;
   public:
-    // wrap with recursive_wrapper only if rebind really changed something
+    // wrap with recursive_variant only if rebind really changed something
     typedef typename std::conditional<
       ( std::is_same<t_, T>::value ||
         std::is_reference<t_>::value ||
         std::is_pointer<t_>::value )
     , t_
-    , typename yaul::wrap_recursive<t_>::type
+    , typename wrap_recursive_variant<t_>::type
     >::type type;
   };
 /** \endcond */
