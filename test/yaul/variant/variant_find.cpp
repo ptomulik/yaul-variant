@@ -11,6 +11,8 @@
 using yaul::variant_find;
 using yaul::variant;
 using yaul::recursive_wrapper;
+using yaul::make_recursive_variant;
+using yaul::recursive_variant_;
 
 static_assert(variant_find<int, variant<int> >::value == 0ul,"");
 static_assert(variant_find<int, variant<char, int, void> >::value == 1ul,"");
@@ -25,11 +27,14 @@ static_assert(variant_find<int, variant<char, recursive_variant<int> > >::value 
 
 #include <yaul/variant/recursive_variant.hpp>
 #include <tuple>
-using yaul::make_recursive_variant;
-using yaul::recursive_variant_;
-static_assert(variant_find<char, make_recursive_variant<char, int, std::tuple<recursive_variant_> >::type>::value == 0ul, "");
-static_assert(variant_find<int, make_recursive_variant<char, int, std::tuple<recursive_variant_> >::type>::value == 1ul, "");
-static_assert(variant_find<std::tuple<recursive_variant_>, make_recursive_variant<char, int, std::tuple<recursive_variant_> >::type>::value == 2ul, "");
+
+void test__recursive_variant__01()
+{
+  typedef make_recursive_variant<char, int, std::tuple<recursive_variant_> >::type V;
+  static_assert(variant_find<char, V>::value == 0ul, "");
+  static_assert(variant_find<int, V>::value == 1ul, "");
+  static_assert(variant_find<std::tuple<V>, V>::value == 2ul, "");
+}
 
 int main()
 {

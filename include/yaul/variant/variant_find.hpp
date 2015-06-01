@@ -64,7 +64,11 @@ template< typename U, typename T0, typename... Others>
   };
 template< typename U, typename T0, typename... Others>
   struct variant_find<U, variant<detail::variant::recursive_flag<T0>, Others...> >
-    : detail::variant::variant_find_impl<0ul, U, T0, Others...>
+    : detail::variant::variant_find_impl<
+        0ul, U, 
+        typename detail::variant::enable_recursive<T0, variant<detail::variant::recursive_flag<T0>,Others...> >::type,
+        typename detail::variant::enable_recursive<Others, variant<detail::variant::recursive_flag<T0>,Others...> >::type...
+      >
   {
   };
 /** \endcond */
