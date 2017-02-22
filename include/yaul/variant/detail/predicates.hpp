@@ -27,6 +27,19 @@ template<typename P>
         >
       { };
   };
+
+/** \ingroup FixMe FIXME
+ * @{ */
+template<typename U>
+struct same_as
+  {
+    template<typename T>
+      struct apply
+        : std::is_same<U,T>
+      {};
+  };
+/** \endcond */
+/** @} */
 } } }  // end namespace yaul::detail::variant
 
 #endif /* YAUL_VARIANT_DETAIL_PREDICATES_HPP */

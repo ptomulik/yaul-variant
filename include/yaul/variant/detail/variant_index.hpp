@@ -19,7 +19,7 @@
 namespace yaul { namespace detail { namespace variant {
 /** \ingroup FixMeGroup FIXME:
  * @{ */
-/** // doc: ctor_index {{{
+/** // doc: variant_index {{{
  * \todo Write documentation
  */ // }}}
 template<std::size_t I>

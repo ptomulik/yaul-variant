@@ -13,15 +13,15 @@ project
 
 test-suite "variant_tests" :
   # Metafunctions in yaul/variant
-  [ run yaul/variant/variant_find.cpp               : : : : yaul/variant/variant_find ]
-  [ run yaul/variant/variant_find_if.cpp            : : : : yaul/variant/variant_find_if ]
-  [ run yaul/variant/variant_any.cpp                : : : : yaul/variant/variant_any ]
-  [ run yaul/variant/variant_all.cpp                : : : : yaul/variant/variant_all ]
-  # [ run yaul/variant/variant_contains.cpp     : : : : yaul/variant/variant_contains ]
   [ run yaul/variant/variant_element.cpp            : : : : yaul/variant/variant_element ]
   [ run yaul/variant/variant_size.cpp               : : : : yaul/variant/variant_size ]
 
   #  Metafunctions in yaul/variant/detail
+  [ run yaul/variant/detail/any.cpp                 : : : : yaul/variant/detail/any ]
+  [ run yaul/variant/detail/all.cpp                 : : : : yaul/variant/detail/all ]
+  [ run yaul/variant/detail/contains.cpp            : : : : yaul/variant/detail/contains ]
+  [ run yaul/variant/detail/find.cpp                : : : : yaul/variant/detail/find ]
+  [ run yaul/variant/detail/find_if.cpp             : : : : yaul/variant/detail/find_if ]
   [ run yaul/variant/detail/static_max.cpp          : : : : yaul/variant/detail/static_max ]
   [ run yaul/variant/detail/variant_storage.cpp     : : : : yaul/variant/detail/variant_storage ]
   [ run yaul/variant/detail/variant_which.cpp       : : : : yaul/variant/detail/variant_which ]

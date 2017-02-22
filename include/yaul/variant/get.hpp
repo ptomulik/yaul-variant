@@ -14,7 +14,7 @@
 #define YAUL_VARIANT_GET_HPP
 
 #include <yaul/variant/variant.hpp>
-#include <yaul/variant/variant_contains.hpp>
+#include <yaul/variant/detail/contains.hpp>
 #include <type_traits>
 
 namespace yaul {
@@ -85,7 +85,7 @@ template<typename U, typename T0, typename... Others>
 inline typename std::add_pointer<U>::type
 strict_get(variant<T0, Others...>* v) noexcept
 {
-  static_assert(variant_contains<U,variant<T0,Others...> >::value,
+  static_assert(detail::variant::contains<U,variant<T0,Others...> >::value,
                 "yaul::variant does not contain specified type U, "
                 "call to yaul::get<U>(variant<T...>*) will always return NULL");
   return relaxed_get<U>(v);
@@ -99,7 +99,7 @@ inline typename std::add_pointer<
 >::type
 strict_get(variant<T0, Others...> const* v) noexcept
 {
-  static_assert(variant_contains<U,variant<T0,Others...> >::value,
+  static_assert(detail::variant::contains<U,variant<T0,Others...> >::value,
                 "yaul::variant does not contain specified type U, "
                 "call to yaul::get<U>(const variant<T...>*) will always return NULL");
   return relaxed_get<U>(v);
@@ -111,7 +111,7 @@ template<typename U, typename T0, typename... Others>
 inline typename std::add_lvalue_reference<U>::type
 strict_get(variant<T0, Others...>& v)
 {
-  static_assert(variant_contains<U,variant<T0,Others...> >::value,
+  static_assert(detail::variant::contains<U,variant<T0,Others...> >::value,
                 "yaul::variant does not contain specified type U, "
                 "call to yaul::get<U>(variant<T...>&) will always throw yaul::bad_get exception");
   return relaxed_get<U>(v);
@@ -125,7 +125,7 @@ inline typename std::add_lvalue_reference<
 >::type
 strict_get(variant<T0, Others...> const& v)
 {
-  static_assert(variant_contains<U,variant<T0,Others...> >::value,
+  static_assert(detail::variant::contains<U,variant<T0,Others...> >::value,
                 "yaul::variant does not contain specified type U, "
                 "call to yaul::get<U>(const variant<T...>&) will always throw yaul::bad_get exception");
   return relaxed_get<U>(v);
@@ -137,7 +137,7 @@ template<typename U, typename T0, typename... Others>
 inline typename std::add_rvalue_reference<U>::type
 strict_get(variant<T0, Others...>&& v)
 {
-  static_assert(variant_contains<U,variant<T0,Others...> >::value,
+  static_assert(detail::variant::contains<U,variant<T0,Others...> >::value,
                 "yaul::variant does not contain specified type U, "
                 "call to yaul::get<U>(variant<T...>&&) will always throw yaul::bad_get exception");
   return relaxed_get<U>(std::move(v));
@@ -151,7 +151,7 @@ inline typename std::add_rvalue_reference<
 >::type
 strict_get(variant<T0, Others...> const&& v)
 {
-  static_assert(variant_contains<U,variant<T0,Others...> >::value,
+  static_assert(detail::variant::contains<U,variant<T0,Others...> >::value,
                 "yaul::variant does not contain specified type U, "
                 "call to yaul::get<U>(variant<T...>&&) will always throw yaul::bad_get exception");
   return relaxed_get<U>(std::move(v));

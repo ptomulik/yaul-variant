@@ -28,7 +28,7 @@
 #include <yaul/variant/apply_visitor.hpp>
 #include <yaul/variant/assert.hpp>
 #include <yaul/variant/bad_get.hpp>
-#include <yaul/variant/variant_find.hpp>
+#include <yaul/variant/detail/find.hpp>
 #include <utility>
 #include <type_traits>
 
@@ -106,7 +106,7 @@ template<typename T0, typename... Others>
     get_ptr() & noexcept
     {
       using T = typename std::add_pointer<U>::type;
-      if(variant_find<U,variant>::value != which())
+      if(detail::variant::find<U,variant>::value != which())
         return nullptr;
       return apply_visitor(detail::variant::variant_getter<T>());
     }
@@ -120,7 +120,7 @@ template<typename T0, typename... Others>
       using T = typename std::add_pointer<
         typename std::add_const<U>::type
       >::type;
-      if(variant_find<U,variant>::value != which())
+      if(detail::variant::find<U,variant>::value != which())
         return nullptr;
       return apply_visitor(detail::variant::variant_getter<T>());
     }
@@ -130,7 +130,7 @@ template<typename T0, typename... Others>
     get() &
     {
       using T = typename std::add_lvalue_reference<U>::type;
-      if(variant_find<U, variant>::value != which())
+      if(detail::variant::find<U, variant>::value != which())
         throw yaul::bad_get();
       return apply_visitor(detail::variant::variant_getter<T>());
     }
@@ -144,7 +144,7 @@ template<typename T0, typename... Others>
       using T = typename std::add_lvalue_reference<
         typename std::add_const<U>::type
       >::type;
-      if(variant_find<U, variant>::value != which())
+      if(detail::variant::find<U, variant>::value != which())
         throw yaul::bad_get();
       return apply_visitor(detail::variant::variant_getter<T>());
     }
@@ -154,7 +154,7 @@ template<typename T0, typename... Others>
     get() &&
     {
       using T = typename std::add_rvalue_reference<U>::type;
-      if(variant_find<U, variant>::value != which())
+      if(detail::variant::find<U, variant>::value != which())
         throw yaul::bad_get();
       return std::move(*this).apply_visitor(detail::variant::variant_getter<T>());
     }
@@ -168,7 +168,7 @@ template<typename T0, typename... Others>
       using T = typename std::add_rvalue_reference<
         typename std::add_const<U>::type
       >::type;
-      if(variant_find<U, variant>::value != which())
+      if(detail::variant::find<U, variant>::value != which())
         throw yaul::bad_get();
       return std::move(*this).apply_visitor(detail::variant::variant_getter<T>());
     }
