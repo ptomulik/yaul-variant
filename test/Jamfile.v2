@@ -14,6 +14,9 @@ project
 test-suite "variant_tests" :
   # Metafunctions in yaul/variant
   [ run yaul/variant/variant_find.cpp               : : : : yaul/variant/variant_find ]
+  [ run yaul/variant/variant_find_if.cpp            : : : : yaul/variant/variant_find_if ]
+  [ run yaul/variant/variant_any.cpp                : : : : yaul/variant/variant_any ]
+  [ run yaul/variant/variant_all.cpp                : : : : yaul/variant/variant_all ]
   # [ run yaul/variant/variant_contains.cpp     : : : : yaul/variant/variant_contains ]
   [ run yaul/variant/variant_element.cpp            : : : : yaul/variant/variant_element ]
   [ run yaul/variant/variant_size.cpp               : : : : yaul/variant/variant_size ]
@@ -36,6 +39,7 @@ test-suite "variant_tests" :
   [ run yaul/variant/variant_assign3.cpp            : : : : yaul/variant/variant_assign3 ]
   [ run yaul/variant/variant_visit1.cpp             : : : : yaul/variant/variant_visit1 ]
   [ run yaul/variant/variant_noexcept1.cpp          : : : : yaul/variant/variant_noexcept1 ]
+  [ run yaul/variant/variant_constexpr1.cpp         : : : : yaul/variant/variant_constexpr1 ]
   [ run yaul/variant/variant_relations1.cpp         : : : : yaul/variant/variant_relations1 ]
   [ run yaul/variant/variant_others1.cpp            : : : : yaul/variant/variant_others1 ]
   [ run yaul/variant/get1.cpp                       : : : : yaul/variant/get1 ]

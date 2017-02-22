@@ -65,7 +65,7 @@ template< std::size_t I, typename S, typename T, typename... Others>
     typename std::remove_reference<F>::type::result_type // FIXME: elaborate
     operator()(S const& s, F&& f) const&&
       noexcept(
-          noexcept(std::forward<F>(f)(detail::variant::storage_cast<T const&>(s))) && 
+          noexcept(std::forward<F>(f)(detail::variant::storage_cast<T const&>(s))) &&
           noexcept(std::declval<storage_vtor_impl const&&>().Base::operator()(s, std::forward<F>(f)))
       )
     {

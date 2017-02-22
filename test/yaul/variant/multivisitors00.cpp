@@ -73,9 +73,9 @@ void test__forward_as_tuple__02()
     static_assert(is_same<decltype(forward_as_tuple(std::move(s),2)), tuple<S&&,int&&> >::value, "");
     static_assert(is_same<decltype(forward_as_tuple(S{2},2)), tuple<S&&,int&&> >::value, "");
     // tuple only holds references, so even here we should achieve noexcept'ness
-    static_assert(noexcept(forward_as_tuple(s,2)), ""); 
+    static_assert(noexcept(forward_as_tuple(s,2)), "");
     // here we call the constructor so...
-    static_assert(!noexcept(forward_as_tuple(S{2},2)), ""); 
+    static_assert(!noexcept(forward_as_tuple(S{2},2)), "");
     YAUL_VARIANT_CHECK_EQUALS(get<0>(forward_as_tuple(s,2)).i, 1);
     get<0>(forward_as_tuple(s,2)).i = 2;
     YAUL_VARIANT_CHECK_EQUALS(s.i, 2);
@@ -100,7 +100,7 @@ void test__forward_as_tuple__03()
   };
   {
     // here we call the constructor so...
-    static_assert(noexcept(forward_as_tuple(S{2},2)), ""); 
+    static_assert(noexcept(forward_as_tuple(S{2},2)), "");
   }
   {
     const yaul::variant<double, int, char> x{};
@@ -304,7 +304,7 @@ void test__make_multivisitor_rewrapper__01()
   {
     T1 t1;
     static_assert(std::is_same<
-        decltype(make_multivisitor_rewrapper(V{}, std::forward_as_tuple(t1,T2{}), std::forward_as_tuple())), 
+        decltype(make_multivisitor_rewrapper(V{}, std::forward_as_tuple(t1,T2{}), std::forward_as_tuple())),
         multivisitor_rewrapper<V&&, std::tuple<T1&,T2&&>, std::tuple<> >
     >::value, "");
     static_assert(noexcept(make_multivisitor_rewrapper(V{}, std::forward_as_tuple(t1, T2{}), std::forward_as_tuple())), "");

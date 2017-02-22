@@ -99,7 +99,7 @@ public: // structors
   explicit
   multivisitor_rewrapper(visitor_t v, visitables_t&& us, values_t&& xs) noexcept
     : visitor_(std::forward<visitor_t>(v)), visitables_(std::move(us)), values_(std::move(xs))
-  { 
+  {
     static_assert(noexcept(visitor_t(std::forward<visitor_t>(v))), "");
     static_assert(noexcept(visitables_t(std::move(us))), "");
     static_assert(noexcept(values_t(std::move(xs))), "");

@@ -45,7 +45,7 @@ template< typename Visitor, typename Arg2 >
                 std::forward<Arg2>(x2_)
               )
         )))
-    { 
+    {
       return  std::forward<Visitor>(visitor_)(
                 std::forward<T1>(x1),
                 std::forward<Arg2>(x2_)

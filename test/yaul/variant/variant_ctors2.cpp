@@ -14,8 +14,18 @@
 
 void test__ctors__01()
 {
-  yaul::variant<int> v{10};
-  YAUL_VARIANT_CHECK_EQUALS(v.which(), 0);
+  {
+    yaul::variant<int> v{10};
+    YAUL_VARIANT_CHECK_EQUALS(v.which(), 0);
+  }
+  {
+    yaul::variant<int> v(10);
+    YAUL_VARIANT_CHECK_EQUALS(v.which(), 0);
+  }
+  //{
+    //yaul::variant<int> v = 10;
+    //YAUL_VARIANT_CHECK_EQUALS(v.which(), 0);
+  //}
 }
 
 void test__ctors__02()

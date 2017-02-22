@@ -370,7 +370,7 @@ struct R03
   R03() = default;
   // all the move/copy operations without noexcept clause
   R03(R03&) = default;
-  R03(R03 const&) = default; 
+  R03(R03 const&) = default;
   R03(R03&&) {}
   R03& operator=(R03&) = default;
   R03& operator=(R03 const&) = default;
@@ -389,12 +389,12 @@ void test__noexcept__03()
 // FIXME: elaborate what's going on there...
 //
 // How the missing noexcept in R03(R03&&) propagates to apply_visitor():
-// 
+//
 // GCC <= 4.9:  does not propagate unless we use the "--no-elide-constructors"
 // GCC >= 5.1:  propagates independently on the flag
 // CLANG 3.5:   propagates unconditionally (seems to...)
 //
-// What about others? 
+// What about others?
 //
 // This seems to be connected to copy-elision vs. noexcept.
 //

@@ -19,7 +19,7 @@
 #include <yaul/variant/detail/recursive_variant.hpp>
 
 namespace yaul {
-template< typename T0, typename... Others > 
+template< typename T0, typename... Others >
   struct make_recursive_variant
   {
     typedef yaul::variant<

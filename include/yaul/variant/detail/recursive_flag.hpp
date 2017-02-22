@@ -48,7 +48,7 @@ template< typename T >
 
 template< typename T >
   struct remove_recursive_flag< recursive_flag<T> >
-  { 
+  {
     typedef T type;
   };
 /** \endcond */

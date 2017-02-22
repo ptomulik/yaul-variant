@@ -16,7 +16,7 @@ void test__relaxed_get__01()
   //
   // relaxed_get(&v) --> pointer version
   //
-  
+
   using yaul::relaxed_get;
   typedef yaul::variant<int,char> V;
 
@@ -86,7 +86,7 @@ void test__relaxed_get__02()
   //
   // relaxed_get(v) --> reference version
   //
-  
+
   using yaul::relaxed_get;
   typedef yaul::variant<int,char> V;
 
@@ -151,7 +151,7 @@ void test__strict_get__01()
   //
   // strict_get(&v) --> pointer version
   //
-  
+
   using yaul::strict_get;
   typedef yaul::variant<int,char> V;
 
@@ -217,7 +217,7 @@ void test__strict_get__02()
   //
   // strict_get(v) --> reference version
   //
-  
+
   using yaul::strict_get;
   typedef yaul::variant<int,char> V;
 
@@ -282,7 +282,7 @@ void test__get__01()
   //
   // get(&v) --> pointer version
   //
-  
+
   using yaul::get;
   typedef yaul::variant<int,char> V;
 
@@ -348,7 +348,7 @@ void test__get__02()
   //
   // get(v) --> reference version
   //
-  
+
   using yaul::get;
   typedef yaul::variant<int,char> V;
 

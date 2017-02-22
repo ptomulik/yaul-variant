@@ -69,7 +69,7 @@ template< typename T >
         return *this;
       }
 
-      recursive_wrapper& operator=(T&& rhs) 
+      recursive_wrapper& operator=(T&& rhs)
         noexcept(noexcept(std::declval<recursive_wrapper&>().get() = std::move( rhs )))
       {
         get() = std::move( rhs );

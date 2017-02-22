@@ -16,6 +16,7 @@
 #include <yaul/variant/config.hpp>
 #include <yaul/variant/detail/variant_storage.hpp>
 #include <yaul/variant/detail/variant_which.hpp>
+#include <yaul/variant/detail/variant_impl.hpp>
 #include <yaul/variant/detail/storage_ctor.hpp>
 #include <yaul/variant/detail/storage_dtor.hpp>
 #include <yaul/variant/detail/storage_vtor.hpp>
@@ -234,7 +235,7 @@ template<typename T0, typename... Others>
       s_dtor_t(storage_, which())();
     }
 
-  public: // assignment 
+  public: // assignment
 
     template< typename T >
     variant& operator=(T&& t)

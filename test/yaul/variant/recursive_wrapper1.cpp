@@ -50,7 +50,7 @@ struct S02
 
 struct V02
 {
-  typedef int result_type; 
+  typedef int result_type;
   int operator()(int i) const { return i; }
   int operator()(S02 const& x) const { return yaul::apply_visitor(*this, x.left) + yaul::apply_visitor(*this, x.right); }
 };
@@ -63,7 +63,7 @@ void test__recursive_wrapper__02()
     X02 x{S02{l,r}};
 
     YAUL_VARIANT_CHECK_EQUALS(yaul::apply_visitor(V02{}, x), 3);
-    x = X02{4}; 
+    x = X02{4};
     YAUL_VARIANT_CHECK_EQUALS(yaul::apply_visitor(V02{}, x), 4);
   }
 
@@ -81,7 +81,7 @@ template< typename T >
 
 void test__is_recursive_wrapper__01()
 {
-  
+
   static_assert(!yaul::is_recursive_wrapper<int>::value, "");
   static_assert(!yaul::is_recursive_wrapper<F01<int> >::value, "");
   static_assert( yaul::is_recursive_wrapper<F02<int> >::value, "");

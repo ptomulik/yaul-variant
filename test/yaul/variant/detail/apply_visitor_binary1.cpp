@@ -14,7 +14,7 @@ struct V01
   static int  ii;
   static char cc;
 
-  typedef int result_type; 
+  typedef int result_type;
 
   template< typename T1, typename T2 >
   int operator()(T1&&, T2&&) noexcept { return -1; }
@@ -151,7 +151,7 @@ void test__binary_visitor_unwrap__01()
     }
   }
 
-  // 
+  //
   // V01 const&
   //
   {
@@ -612,7 +612,7 @@ struct V02
   static char c1;
   static char c2;
 
-  typedef int result_type; 
+  typedef int result_type;
 
   template< typename T1, typename T2 >
   int operator()(T1&&, T2&&) const noexcept { return -1; }
