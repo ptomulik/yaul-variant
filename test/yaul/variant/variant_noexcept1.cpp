@@ -247,7 +247,7 @@ void test__assign__01()
     static_assert(noexcept(v1 = std::move(s1)), "");
     static_assert(noexcept(v1 = v2), "");
     static_assert(noexcept(v1 = v3), "");
-    static_assert(noexcept(v1 = std::move(v1)), "");
+    static_assert(noexcept(v1 = std::move(v2)), "");
     static_assert(noexcept(v4 = v1), "");
     static_assert(noexcept(v4 = v2), "");
     static_assert(noexcept(v4 = std::move(v1)), "");

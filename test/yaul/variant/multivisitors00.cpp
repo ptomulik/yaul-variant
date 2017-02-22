@@ -188,6 +188,7 @@ void test__tuple_tail_fwd__02()
 
   {
     S s;
+    S&& sr1 = S{}, sr2 = S{};
     // this shall only pass-over references...
     YAUL_VARIANT_CHECK_EQUALS(std::get<2>(std::forward_as_tuple('a', 1, s)).which, 0);
     YAUL_VARIANT_CHECK_EQUALS(std::get<1>(tuple_tail_fwd(std::forward_as_tuple('a', 1, s))).which, 0);
@@ -195,8 +196,8 @@ void test__tuple_tail_fwd__02()
     YAUL_VARIANT_CHECK_EQUALS(std::get<2>(std::forward_as_tuple('a',1,S{})).which, 0);
     YAUL_VARIANT_CHECK_EQUALS(std::get<1>(tuple_tail_fwd(std::forward_as_tuple('a',1,S{}))).which, 0);
 
-    YAUL_VARIANT_CHECK_EQUALS(std::get<2>(std::forward_as_tuple('a',1,S{std::move(S{})})).which, 3);
-    YAUL_VARIANT_CHECK_EQUALS(std::get<1>(tuple_tail_fwd(std::forward_as_tuple('a',1,S{std::move(S{})}))).which, 3);
+    YAUL_VARIANT_CHECK_EQUALS(std::get<2>(std::forward_as_tuple('a',1,S{std::move(sr1)})).which, 3);
+    YAUL_VARIANT_CHECK_EQUALS(std::get<1>(tuple_tail_fwd(std::forward_as_tuple('a',1,S{std::move(sr2)}))).which, 3);
   }
 }
 

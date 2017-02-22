@@ -5,67 +5,41 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 import testing ;
+import regex ;
 
 project
   : requirements
     <include>.
+    <include>../include
   ;
 
-test-suite "variant_tests" :
-  # Metafunctions in yaul/variant
-  [ run yaul/variant/variant_element.cpp            : : : : yaul/variant/variant_element ]
-  [ run yaul/variant/variant_size.cpp               : : : : yaul/variant/variant_size ]
+rule variant-all-tests {
+  local toolset =
+    <toolset>gcc:<cxxflags>"-std=c++11 -Wall -Wextra -pedantic -Werror"
+    <toolset>clang:<cxxflags>"-std=c++11 -Wall -Wextra -pedantic -Werror"
+    <toolset>darwin:<cxxflags>"-std=c++11 -Wall -Wextra -pedantic -Werror"
+  ;
 
-  #  Metafunctions in yaul/variant/detail
-  [ run yaul/variant/detail/any.cpp                 : : : : yaul/variant/detail/any ]
-  [ run yaul/variant/detail/all.cpp                 : : : : yaul/variant/detail/all ]
-  [ run yaul/variant/detail/contains.cpp            : : : : yaul/variant/detail/contains ]
-  [ run yaul/variant/detail/find.cpp                : : : : yaul/variant/detail/find ]
-  [ run yaul/variant/detail/find_if.cpp             : : : : yaul/variant/detail/find_if ]
-  [ run yaul/variant/detail/static_max.cpp          : : : : yaul/variant/detail/static_max ]
-  [ run yaul/variant/detail/variant_storage.cpp     : : : : yaul/variant/detail/variant_storage ]
-  [ run yaul/variant/detail/variant_which.cpp       : : : : yaul/variant/detail/variant_which ]
-  [ run yaul/variant/detail/substitute.cpp          : : : : yaul/variant/detail/substitute ]
-  [ run yaul/variant/detail/enable_recursive.cpp    : : : : yaul/variant/detail/enable_recursive ]
+  local result ;
 
-  #  The variant
-  [ run yaul/variant/variant_dtor1.cpp              : : : : yaul/variant/variant_dtor1 ]
-  [ run yaul/variant/variant_ctors1.cpp             : : : : yaul/variant/variant_ctors1 ]
-  [ run yaul/variant/variant_ctors2.cpp             : : : : yaul/variant/variant_ctors2 ]
-  [ run yaul/variant/variant_ctors3.cpp             : : : : yaul/variant/variant_ctors3 ]
-  [ run yaul/variant/variant_ctors4.cpp             : : : : yaul/variant/variant_ctors4 ]
-  [ run yaul/variant/variant_assign1.cpp            : : : : yaul/variant/variant_assign1 ]
-  [ run yaul/variant/variant_assign2.cpp            : : : : yaul/variant/variant_assign2 ]
-  [ run yaul/variant/variant_assign3.cpp            : : : : yaul/variant/variant_assign3 ]
-  [ run yaul/variant/variant_visit1.cpp             : : : : yaul/variant/variant_visit1 ]
-  [ run yaul/variant/variant_noexcept1.cpp          : : : : yaul/variant/variant_noexcept1 ]
-  [ run yaul/variant/variant_constexpr1.cpp         : : : : yaul/variant/variant_constexpr1 ]
-  [ run yaul/variant/variant_relations1.cpp         : : : : yaul/variant/variant_relations1 ]
-  [ run yaul/variant/variant_others1.cpp            : : : : yaul/variant/variant_others1 ]
-  [ run yaul/variant/get1.cpp                       : : : : yaul/variant/get1 ]
-  # run yaul/variant/get2.cpp                       : : : : yaul/variant/get2 ]
+  local sources = [ glob-tree *.cpp : get2.cpp ] ;
 
-  #  Recursive wrapper
-  [ run yaul/variant/recursive_wrapper1.cpp         : : : : yaul/variant/recursive_wrapper1 ]
+  for local source in $(sources)
+  {
+    local target = [ regex.replace $(source) "\.cpp" "" ] ;
+    result += [ run $(source) : : : $(toolset) : test/$(target) ] ;
+  }
 
-  #  Recursive variant
-  [ run yaul/variant/recursive_variant1.cpp         : : : : yaul/variant/recursive_variant1 ]
+  return $(result) ;
+}
 
+test-suite variant : [ variant-all-tests ] ;
 
-  #  The visitor stuff
-  [ run yaul/variant/detail/apply_visitor_unary1.cpp        : : : : yaul/variant/detail/apply_visitor_unary1 ]
-  [ run yaul/variant/detail/apply_visitor_binary1.cpp       : : : : yaul/variant/detail/apply_visitor_binary1 ]
-  [ run yaul/variant/detail/apply_visitor_binary2.cpp       : : : : yaul/variant/detail/apply_visitor_binary2 ]
-  [ run yaul/variant/multivisitors00.cpp            : : : : yaul/variant/multivisitors00 ]
-  [ run yaul/variant/multivisitors01.cpp            : : : : yaul/variant/multivisitors01 ]
-  [ run yaul/variant/multivisitors02.cpp            : : : : yaul/variant/multivisitors02 ]
-  [ run yaul/variant/multivisitors03.cpp            : : : : yaul/variant/multivisitors03 ]
-  [ run yaul/variant/multivisitors04.cpp            : : : : yaul/variant/multivisitors04 ]
-  [ run yaul/variant/multivisitors05.cpp            : : : : yaul/variant/multivisitors05 ]
-  [ run yaul/variant/multivisitors06.cpp            : : : : yaul/variant/multivisitors06 ]
-  [ run yaul/variant/multivisitors07.cpp            : : : : yaul/variant/multivisitors07 ]
-  [ run yaul/variant/multivisitors08.cpp            : : : : yaul/variant/multivisitors08 ]
-  [ run yaul/variant/multivisitors09.cpp            : : : : yaul/variant/multivisitors09 ]
-;
+# Satisfy the Boost library requirements (?)
+test-suite minimal : variant ;
+test-suite full : variant ;
+test-suite extra : variant ;
 
-#run yaul/variant/${unit}.cpp                  : : : : yaul/variant/${unit} ;
+explicit variant ;
+explicit minimal ;
+explicit extra ;
