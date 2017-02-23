@@ -17,7 +17,7 @@
 #include <utility>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup FixMe FIXME:
+/** \ingroup group-fixme FIXME:
  * @{ */
 /** // doc: storage_dtor_impl {{{
  * \todo Write documentation
@@ -94,6 +94,7 @@ template<typename S, typename T0, typename... Others>
   {
     typedef storage_dtor<S, T0,Others...> type;
   };
+
 template<typename S, typename T0, typename... Others>
   struct make_storage_dtor< S, yaul::variant<recursive_flag<T0>,Others...> >
   {

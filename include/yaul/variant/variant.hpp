@@ -13,91 +13,84 @@
 #ifndef YAUL_VARIANT_VARIANT_HPP
 #define YAUL_VARIANT_VARIANT_HPP
 
+#include <yaul/variant/detail/variant_base.hpp>
 #include <yaul/variant/config.hpp>
-#include <yaul/variant/detail/variant_storage.hpp>
-#include <yaul/variant/detail/variant_which.hpp>
-#include <yaul/variant/detail/variant_impl.hpp>
-#include <yaul/variant/detail/storage_ctor.hpp>
-#include <yaul/variant/detail/storage_dtor.hpp>
-#include <yaul/variant/detail/storage_vtor.hpp>
-#include <yaul/variant/detail/storage_assigner.hpp>
 #include <yaul/variant/detail/variant_assigner.hpp>
 #include <yaul/variant/detail/variant_getter.hpp>
-#include <yaul/variant/detail/reflect.hpp>
 #include <yaul/variant/detail/relations.hpp>
 #include <yaul/variant/apply_visitor.hpp>
-#include <yaul/variant/assert.hpp>
 #include <yaul/variant/bad_get.hpp>
 #include <yaul/variant/detail/find.hpp>
 #include <utility>
 #include <type_traits>
 
 namespace yaul {
-/** \ingroup VariantGroup
+/** \ingroup group-variant
  * @{ */
 /** // doc: variant {{{
  * \todo Write documentation
  */ // }}}
 template<typename T0, typename... Others>
   class variant
+    : public detail::variant::variant_base<variant<T0,Others...> >
   {
   private:
-    typedef detail::variant::variant_storage_t<variant> storage_t;
-    typedef detail::variant::variant_which_t<variant> which_t;
+    using Base = detail::variant::variant_base<variant<T0,Others...> >;
+    using invoked_advertently_t = detail::variant::invoked_advertently_t;
+    typedef detail::variant::variant_assigner<variant> Assigner;
+  public: // ctors
+    // FIXME: SFINAE-out default constructor when necessary
+    variant()
+      noexcept(noexcept(Base()))
+      : Base()
+    { }
 
-    // shorthand notation for some visitors...
-    typedef detail::variant::make_storage_ctor_t<storage_t, variant> s_ctor_t;
-    typedef detail::variant::make_storage_dtor_t<storage_t, variant> s_dtor_t;
-    typedef detail::variant::make_storage_assigner_t<storage_t, variant> s_asgn_t;
-    typedef detail::variant::make_storage_vtor_t<storage_t, variant> s_vtor_t;
-    typedef detail::variant::variant_assigner<variant> v_asgn_t;
-
-  private: // presentation
-
-    which_t which_;
-    storage_t storage_;
-
-  private: // helpers, for representation (below)
-
-    void indicate_which(int which_arg) noexcept
+    template< typename T >
+    explicit variant(T&& t)
+      noexcept( noexcept(Base(invoked_advertently_t(),std::forward<T>(t))) )
+      : Base(invoked_advertently_t(),std::forward<T>(t))
     {
-      which_ = static_cast<which_t>( which_arg );
+      // T&& is a universal reference
+      // https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers
     }
 
-    void indicate_backup_which(int which_arg) noexcept
-    {
-      which_ = static_cast<which_t>( -(which_arg +1) );
-    }
+    template<typename TT0, typename...  TTs>
+    explicit variant(variant<TT0,TTs...>& other)
+      noexcept( noexcept(Base(other)) )
+      : Base(other)
+    { }
 
-  private: // helpers, for queries (below)
+    template<typename TT0, typename...  TTs>
+    explicit variant(variant<TT0,TTs...> const& other)
+      noexcept( noexcept(Base(other)) )
+      : Base(other)
+    { }
 
-    bool using_backup() const noexcept
-    {
-      return which_ < 0;
-    }
+    template<typename TT0, typename...  TTs>
+    explicit variant(variant<TT0,TTs...>&& other)
+      noexcept( noexcept(Base(std::move(other))) )
+      : Base(std::move(other))
+    { }
 
-  public: // queries
+    variant(variant& other)
+      noexcept( noexcept(Base(other)) )
+      : Base(other)
+    { }
 
-    int which() const noexcept
-    {
-      // If using heap backup...
-      if(using_backup())
-        // ... then return adjusted which_:
-        return -(which_ + 1);
-      // Otherwise, return which_ directly:
-      return which_;
-    }
+    variant(variant const& other)
+      noexcept( noexcept(Base(other)) )
+      : Base(other)
+    { }
 
-    constexpr bool empty() const noexcept
-    {
-      return false;
-    }
+    variant(variant&& other)
+      noexcept( noexcept(Base(std::move(other))) )
+      : Base(std::move(other))
+    { }
 
-    const std::type_info& type() const noexcept
-    {
-      return apply_visitor(detail::variant::reflect());
-    }
-
+  private:
+    //using Base::which;
+    using Base::assign; // FIXME: this is required only for some noexcepts below
+    //using Base::apply_visitor;
 
   public: // value access
 
@@ -106,9 +99,9 @@ template<typename T0, typename... Others>
     get_ptr() & noexcept
     {
       using T = typename std::add_pointer<U>::type;
-      if(detail::variant::find<U,variant>::value != which())
+      if(detail::variant::find<U,variant>::value != this->which())
         return nullptr;
-      return apply_visitor(detail::variant::variant_getter<T>());
+      return this->apply_visitor(detail::variant::variant_getter<T>());
     }
 
     template< typename U >
@@ -120,9 +113,9 @@ template<typename T0, typename... Others>
       using T = typename std::add_pointer<
         typename std::add_const<U>::type
       >::type;
-      if(detail::variant::find<U,variant>::value != which())
+      if(detail::variant::find<U,variant>::value != this->which())
         return nullptr;
-      return apply_visitor(detail::variant::variant_getter<T>());
+      return this->apply_visitor(detail::variant::variant_getter<T>());
     }
 
     template< typename U >
@@ -130,9 +123,9 @@ template<typename T0, typename... Others>
     get() &
     {
       using T = typename std::add_lvalue_reference<U>::type;
-      if(detail::variant::find<U, variant>::value != which())
+      if(detail::variant::find<U, variant>::value != this->which())
         throw yaul::bad_get();
-      return apply_visitor(detail::variant::variant_getter<T>());
+      return this->apply_visitor(detail::variant::variant_getter<T>());
     }
 
     template< typename U >
@@ -144,9 +137,9 @@ template<typename T0, typename... Others>
       using T = typename std::add_lvalue_reference<
         typename std::add_const<U>::type
       >::type;
-      if(detail::variant::find<U, variant>::value != which())
+      if(detail::variant::find<U, variant>::value != this->which())
         throw yaul::bad_get();
-      return apply_visitor(detail::variant::variant_getter<T>());
+      return this->apply_visitor(detail::variant::variant_getter<T>());
     }
 
     template< typename U >
@@ -154,7 +147,7 @@ template<typename T0, typename... Others>
     get() &&
     {
       using T = typename std::add_rvalue_reference<U>::type;
-      if(detail::variant::find<U, variant>::value != which())
+      if(detail::variant::find<U, variant>::value != this->which())
         throw yaul::bad_get();
       return std::move(*this).apply_visitor(detail::variant::variant_getter<T>());
     }
@@ -168,192 +161,87 @@ template<typename T0, typename... Others>
       using T = typename std::add_rvalue_reference<
         typename std::add_const<U>::type
       >::type;
-      if(detail::variant::find<U, variant>::value != which())
+      if(detail::variant::find<U, variant>::value != this->which())
         throw yaul::bad_get();
       return std::move(*this).apply_visitor(detail::variant::variant_getter<T>());
     }
 
-  public: // ctors
-    variant()
-      noexcept(noexcept(s_ctor_t(std::declval<storage_t&>())()))
+  protected: // assignment (private API methods)
+
+    template<typename TT0, typename... TTs>
+    void assign(variant<TT0,TTs...>& other)
+      noexcept(noexcept(other.apply_visitor(Assigner(std::declval<variant&>()))))
     {
-      indicate_which(s_ctor_t(storage_)());
+      other.apply_visitor(Assigner(*this));
     }
 
-    template< typename T >
-    explicit variant(T&& t)
-      noexcept(noexcept(s_ctor_t(std::declval<storage_t&>())(std::forward<T>(t))))
+    template<typename TT0, typename... TTs>
+    void assign(variant<TT0,TTs...> const& other)
+      noexcept(noexcept(other.apply_visitor(Assigner(std::declval<variant&>()))))
     {
-      // T&& is a universal reference
-      // https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers
-      indicate_which(s_ctor_t(storage_)(std::forward<T>(t)));
+      other.apply_visitor(Assigner(*this));
     }
 
-    template<typename TT0, typename...  TTs>
-    explicit variant(variant<TT0,TTs...>& other)
-      noexcept(noexcept(other.apply_visitor(s_ctor_t(std::declval<storage_t&>()))))
+    template<typename TT0, typename... TTs>
+    void assign(variant<TT0,TTs...>&& other)
+      noexcept(noexcept(std::move(other).apply_visitor(Assigner(std::declval<variant&>()))))
     {
-      indicate_which(other.apply_visitor(s_ctor_t(storage_)));
-    }
-
-    template<typename TT0, typename...  TTs>
-    explicit variant(variant<TT0,TTs...> const& other)
-      noexcept(noexcept(other.apply_visitor(s_ctor_t(std::declval<storage_t&>()))))
-    {
-      indicate_which(other.apply_visitor(s_ctor_t(storage_)));
-    }
-
-    template<typename TT0, typename...  TTs>
-    explicit variant(variant<TT0,TTs...>&& other)
-      noexcept(noexcept(std::move(other).apply_visitor(s_ctor_t(std::declval<storage_t&>()))))
-    {
-      indicate_which(std::move(other).apply_visitor(s_ctor_t(storage_)));
-    }
-
-    variant(variant& other)
-      noexcept(noexcept(other.apply_visitor(s_ctor_t(std::declval<storage_t&>()))))
-    {
-      indicate_which(other.apply_visitor(s_ctor_t(storage_)));
-    }
-
-    variant(variant const& other)
-      noexcept(noexcept(other.apply_visitor(s_ctor_t(std::declval<storage_t&>()))))
-    {
-      indicate_which(other.apply_visitor(s_ctor_t(storage_)));
-    }
-
-    variant(variant&& other)
-      noexcept(noexcept(std::move(other).apply_visitor(s_ctor_t(std::declval<storage_t&>()))))
-    {
-      indicate_which(std::move(other).apply_visitor(s_ctor_t(storage_)));
-    }
-
-  public: // dtor
-    ~variant()
-      noexcept(noexcept(s_dtor_t(std::declval<storage_t&>(), int())()))
-    {
-      s_dtor_t(storage_, which())();
+      std::move(other).apply_visitor(Assigner(*this));
     }
 
   public: // assignment
 
     template< typename T >
     variant& operator=(T&& t)
-        noexcept( noexcept(s_ctor_t(std::declval<storage_t&>())(std::declval<T&&>())) &&
-                  noexcept(s_asgn_t(std::declval<storage_t&>())(std::forward<T>(t))) )
+        noexcept( noexcept(std::declval<variant&>().assign(std::forward<T>(t))) )
     {
-      if(s_asgn_t(storage_).which(std::forward<T>(t)) == which())
-        indicate_which(s_asgn_t(storage_)(std::forward<T>(t)));
-      else
-        {
-          s_dtor_t(storage_, which())();
-          indicate_which(s_ctor_t(storage_)(std::forward<T>(t)));
-        }
+      this->assign(std::forward<T>(t));
       return *this;
     }
 
     template<typename TT0, typename... TTs>
     variant& operator=(variant<TT0,TTs...>& other)
-      noexcept(noexcept(other.apply_visitor(v_asgn_t(std::declval<variant&>()))))
+      noexcept( noexcept(std::declval<variant&>().assign(other)) )
     {
-      other.apply_visitor(v_asgn_t(*this));
+      this->assign(other);
       return *this;
     }
 
     template<typename TT0, typename... TTs>
     variant& operator=(variant<TT0,TTs...> const& other)
-      noexcept(noexcept(other.apply_visitor(v_asgn_t(std::declval<variant&>()))))
+      noexcept( noexcept(std::declval<variant&>().assign(other)) )
     {
-      other.apply_visitor(v_asgn_t(*this));
+      this->assign(other);
       return *this;
     }
 
     template<typename TT0, typename... TTs>
     variant& operator=(variant<TT0,TTs...>&& other)
-      noexcept(noexcept(std::move(other).apply_visitor(v_asgn_t(std::declval<variant&>()))))
+        noexcept( noexcept(std::declval<variant&>().assign(std::forward<variant<TT0,TTs...> >(other))) )
     {
-      std::move(other).apply_visitor(v_asgn_t(*this));
+      this->assign(std::forward<variant<TT0,TTs...> >(other));
       return *this;
     }
 
     variant& operator=(variant& other)
-        noexcept( noexcept(std::declval<variant&>().apply_visitor(s_ctor_t(std::declval<storage_t&>()))) &&
-                  noexcept(other.apply_visitor(s_asgn_t(std::declval<storage_t&>()))) )
+        noexcept( noexcept(std::declval<variant&>().assign(other)) )
     {
-      if(which() == other.which())
-        indicate_which(other.apply_visitor(s_asgn_t(storage_)));
-      else
-        {
-          s_dtor_t(storage_, which())();
-          indicate_which(other.apply_visitor(s_ctor_t(storage_)));
-        }
+      this->assign(other);
       return *this;
     }
 
     variant& operator=(variant const& other)
-        noexcept( noexcept(std::declval<variant const&>().apply_visitor(s_ctor_t(std::declval<storage_t&>()))) &&
-                  noexcept(other.apply_visitor(s_asgn_t(std::declval<storage_t&>()))) )
+        noexcept( noexcept(std::declval<variant&>().assign(other)) )
     {
-      if(which() == other.which())
-        indicate_which(other.apply_visitor(s_asgn_t(storage_)));
-      else
-        {
-          s_dtor_t(storage_, which())();
-          indicate_which(other.apply_visitor(s_ctor_t(storage_)));
-        }
+      this->assign(other);
       return *this;
     }
 
     variant& operator=(variant&& other)
-        noexcept( noexcept(std::declval<variant&&>().apply_visitor(s_ctor_t(std::declval<storage_t&>()))) &&
-                  noexcept(std::move(other).apply_visitor(s_asgn_t(std::declval<storage_t&>()))) )
+        noexcept( noexcept(std::declval<variant&>().assign(std::move(other))) )
     {
-      if(which() == std::move(other).which())
-        indicate_which(std::move(other).apply_visitor(s_asgn_t(storage_)));
-      else
-        {
-          s_dtor_t(storage_, which())();
-          indicate_which(std::move(other).apply_visitor(s_ctor_t(storage_)));
-        }
+      this->assign(std::move(other));
       return *this;
-    }
-
-
-  public: // visitation
-    template<typename Visitor>
-    typename std::remove_reference<Visitor>::type::result_type // FIXME: elaborate
-    apply_visitor(Visitor&& v) &
-        noexcept(noexcept(s_vtor_t(int())( std::declval<storage_t&>(), std::forward<Visitor>(v) )))
-    {
-      YAUL_VARIANT_ASSERT((0 <= which()) && (static_cast<std::size_t>(which()) < (1ul + sizeof...(Others))));
-      return s_vtor_t(which())(storage_, std::forward<Visitor>(v));
-    }
-
-    template<typename Visitor>
-    typename std::remove_reference<Visitor>::type::result_type // FIXME: elaborate
-    apply_visitor(Visitor&& v) const &
-        noexcept( noexcept(s_vtor_t(int())(std::declval<storage_t const&>(), std::forward<Visitor>(v))) )
-    {
-      YAUL_VARIANT_ASSERT((0 <= which()) && (static_cast<std::size_t>(which()) < (1ul + sizeof...(Others))));
-      return s_vtor_t(which())(storage_, std::forward<Visitor>(v));
-    }
-
-    template<typename Visitor>
-    typename std::remove_reference<Visitor>::type::result_type // FIXME: elaborate
-    apply_visitor(Visitor&& v) &&
-        noexcept( noexcept(s_vtor_t(int())(std::declval<storage_t&&>(), std::forward<Visitor>(v))) )
-    {
-      YAUL_VARIANT_ASSERT((0 <= which()) && (static_cast<std::size_t>(which()) < (1ul + sizeof...(Others))));
-      return s_vtor_t(which())(std::move(*this).storage_, std::forward<Visitor>(v));
-    }
-
-    template<typename Visitor>
-    typename std::remove_reference<Visitor>::type::result_type // FIXME: elaborate
-    apply_visitor(Visitor&& v) const&&
-        noexcept( noexcept(s_vtor_t(int())(std::declval<storage_t const&&>(), std::forward<Visitor>(v))) )
-    {
-      YAUL_VARIANT_ASSERT((0 <= which()) && (static_cast<std::size_t>(which()) < (1ul + sizeof...(Others))));
-      return s_vtor_t(which())(std::move(*this).storage_, std::forward<Visitor>(v));
     }
 
   public: // relational

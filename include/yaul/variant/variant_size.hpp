@@ -18,7 +18,7 @@
 #include <cstddef>
 
 namespace yaul {
-/** \ingroup MetafunctionsGroup
+/** \ingroup group-metafunctions
  * @{ */
 /** // doc: variant_size {{{
  * \todo Write documentation

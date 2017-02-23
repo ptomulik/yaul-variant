@@ -17,7 +17,7 @@
 #include <cstddef>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup DetailMetafunctionsGroup
+/** \ingroup group-detail-metafunctions
  * @{ */
 /** // doc: static_max {{{
  * \brief Find maximum integer among multiple values

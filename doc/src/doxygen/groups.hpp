@@ -7,7 +7,7 @@
 // groups.hpp
 
 namespace yaul {
-/** \defgroup VariantGroup Variant
+/** \defgroup group-variant Variant
  *
  * This module documents variant's API
  */
@@ -16,17 +16,19 @@ namespace yaul { namespace detail {
 } } // end namespace yaul::detail
 namespace yaul { namespace detail { namespace variant {
 /**
- * \defgroup DetailGroup Implementation Details
- * 
+ * \defgroup group-detail Implementation Details
+ *
  * This module documents details of the variant library, mostly the stuff found
  * in yaul::detail::variant namespace.
  *
  * @{
  */
 /**
- * \defgroup DetailMetafunctionsGroup Metafunctions
+ * \defgroup group-detail-metafunctions Metafunctions
  *
  * Metafunctions used across the variant library.
+ */
+/** \defgroup group-detail-algorithms Algorithms
  */
 /** @} */
 } } } // end namespace yaul::detail::variant

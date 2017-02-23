@@ -18,7 +18,7 @@
 #include <type_traits>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup MetafunctionsGroup
+/** \ingroup group-detail-algorithms
  * @{ */
 /** // doc: contains {{{
  * \todo Write documentation

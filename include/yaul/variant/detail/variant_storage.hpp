@@ -20,7 +20,7 @@
 #include <type_traits>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup DetailMetafunctionsGroup
+/** \ingroup group-detail-metafunctions
  * @{ */
 
 template<typename Variant>

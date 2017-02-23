@@ -122,7 +122,7 @@ binary_visitor_wrap(Visitor&& visitor, Visitable&& visitable) noexcept
 } } } // end namespace yaul::detail::variant
 
 namespace yaul {
-/** \ingroup FixMe FIXME:
+/** \ingroup group-fixme FIXME:
  * @{ */
 /** // doc: apply_visitor {{{
  * \todo Write documentation

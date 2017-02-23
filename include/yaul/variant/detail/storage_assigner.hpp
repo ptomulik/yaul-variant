@@ -18,7 +18,7 @@
 #include <yaul/variant/recursive_wrapper_fwd.hpp>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup FixMe FIXME:
+/** \ingroup group-fixme FIXME:
  * @{ */
 /** // doc: storage_assigner_impl {{{
  * \todo Write documentation
@@ -167,6 +167,7 @@ template<typename S, typename T0, typename... Others>
   {
     typedef storage_assigner<S, T0,Others...> type;
   };
+
 template<typename S, typename T0, typename... Others>
   struct make_storage_assigner< S, yaul::variant<recursive_flag<T0>,Others...> >
   {

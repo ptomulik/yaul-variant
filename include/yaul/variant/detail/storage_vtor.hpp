@@ -18,7 +18,7 @@
 #include <yaul/variant/detail/storage_cast.hpp>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup FixMe FIXME:
+/** \ingroup group-fixme FIXME:
  * @{ */
 /** // doc: storage_vtor_impl {{{
  * \todo Write documentation
@@ -278,6 +278,7 @@ template<typename S, typename T0, typename... Others>
   {
     typedef storage_vtor<S, T0, Others...> type;
   };
+
 template<typename S, typename T0, typename... Others>
   struct make_storage_vtor< S, yaul::variant<recursive_flag<T0>,Others...> >
   {

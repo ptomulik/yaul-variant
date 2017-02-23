@@ -18,7 +18,7 @@
 #include <climits>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup DetailMetafunctions
+/** \ingroup group-detail-metafunctions
  * @{ */
 template< typename Variant, typename = void >
   struct variant_which_impl

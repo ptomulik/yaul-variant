@@ -14,7 +14,7 @@
 #define YAUL_VARIANT_RECURSIVE_VARIANT_FWD_HPP
 
 namespace yaul {
-/** \ingroup FixMe FIXME:
+/** \ingroup group-fixme FIXME:
  * @{ */
 /** // doc: recursive_variant_ {{{
  * \todo Write documentation

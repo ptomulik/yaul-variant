@@ -17,7 +17,7 @@
 #include <utility>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup FixMe FIXME:
+/** \ingroup group-fixme FIXME:
  * @{ */
 /** // doc: storage_ctor_impl {{{
  * \todo Write documentation
@@ -112,6 +112,7 @@ template<typename S, typename T0, typename... Others>
   {
     typedef storage_ctor<S, T0,Others...> type;
   };
+
 template<typename S, typename T0, typename... Others>
   struct make_storage_ctor< S, yaul::variant<recursive_flag<T0>,Others...> >
   {

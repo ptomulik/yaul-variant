@@ -14,7 +14,7 @@
 #define YAUL_VARIANT_VARIANT_FWD_HPP
 
 namespace yaul {
-/** \ingroup FixMe FIXME:
+/** \ingroup group-fixme FIXME:
  * @{ */
 template< typename T0, typename... Others > class variant;
 template< typename T0, typename... Others > struct make_recursive_variant;

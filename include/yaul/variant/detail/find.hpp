@@ -17,14 +17,14 @@
 #include <yaul/variant/detail/predicates.hpp>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup MetafunctionsGroup
+/** \ingroup group-detail-algorithms
  * @{ */
 /** // doc: find {{{
  * \todo Write documentation
  */ // }}}
 template< typename U, typename Variant >
   struct find
-    : find_if<same_as<U>, Variant>
+    : find_if<is_same_as<U>, Variant>
   { };
 /** @} */
 } } } // end namespace yaul::detail::variant

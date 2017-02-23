@@ -19,7 +19,7 @@
 #include <utility>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup FixMe
+/** \ingroup group-fixme
  * @{ */
 /** // doc: variant_getter {{{
  * \todo Write documentation

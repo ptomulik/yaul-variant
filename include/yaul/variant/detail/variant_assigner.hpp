@@ -17,7 +17,7 @@
 #include <utility>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup FixMe FIXME:
+/** \ingroup group-fixme FIXME:
  * @{ */
 /** // doc: variant_assigner {{{
  * \todo Write documentation

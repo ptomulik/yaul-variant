@@ -21,8 +21,19 @@
 #include <type_traits>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup FixMe FIXME
+/** \ingroup group-detail-algorithms
  * @{ */
+/** // doc: find_if {{{
+ * \todo Write documentation
+ */ // }}}
+#ifdef YAUL_VARIANT_DOXYGEN_INVOKED
+template< typename Pred, typename Variant >
+  struct find_if : std::integral_constant<std::size_t, index-value>
+  { };
+#else
+template< typename Pred, typename Variant >
+  struct find_if;
+
 template< std::size_t I, typename Pred, typename... Types >
   struct find_if_impl;
 
@@ -42,16 +53,6 @@ template< std::size_t I, typename Pred >
   struct find_if_impl<I, Pred >
     : std::integral_constant<std::size_t, I>
   { };
-/** \endcond */
-/** @} */
-
-/** \ingroup MetafunctionsGroup
- * @{ */
-/** // doc: find_if {{{
- * \todo Write documentation
- */ // }}}
-template< typename U, typename Variant >
-  struct find_if;
 
 /** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
 template< typename Pred, typename T0, typename... Others>
@@ -69,6 +70,7 @@ template< typename Pred, typename T0, typename... Others>
   {
   };
 /** \endcond */
+#endif
 /** @} */
 } } } // end namespace yaul::detail::variant
 

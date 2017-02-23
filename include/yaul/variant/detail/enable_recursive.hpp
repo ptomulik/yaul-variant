@@ -21,9 +21,30 @@
 #include <type_traits>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup FixMe FIXME:
+/** \ingroup group-detail-metafunctions
  * @{ */
 
+/** // doc: enable_recursive {{{
+ * \brief Attempts \ref yaul::recursive_variant_ "recursive_variant_" tag
+ *        substitution, wrapping with
+ *        \ref yaul::detail::variant::recursive_variant "recursive_variant" if
+ *        substitution occurs with non-indirect result (i.e., not a reference
+ *        or pointer) *and* NoWrapper is \c false.
+ *
+ *  <b>Example</b>
+ *  \code
+ *  template <typename...> struct X;
+ *  template <typename...> struct F;
+ *  using T = X<int, char, recursive_variant_>;
+ *
+ *  using R = enable_recursive<recursive_variant_, T>::type;          // R = recursive_variant< T >
+ *  using R = enable_recursive<recursive_variant_&, T>::type;         // R = T&
+ *  using R = enable_recursive<recursive_variant_ const&, T>::type;   // R = T const&
+ *  using R = enable_recursive<recursive_variant_ const*, T>::type;   // R = T const*
+ *  using R = enable_recursive<T, T>::type;                           // R = recursive_variant< X<int char, T> >
+ *  using R = enable_recursive<F<recursive_variant_>, T>::type;       // R = recursive_variant< F<T> >
+ *  \endcode
+ */ // }}}
 template< typename T, typename RecursiveVariant, bool NoWrapper >
   struct enable_recursive
     : substitute<T, RecursiveVariant, yaul::recursive_variant_>

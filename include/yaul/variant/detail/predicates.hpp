@@ -16,27 +16,13 @@
 #include <type_traits>
 
 namespace yaul { namespace detail { namespace variant {
-template<typename P>
-  struct not_
-  {
-    template<typename T>
-      struct apply
-        : std::integral_constant<
-            typename P::template apply<T>::value_type,
-          !(P::template apply<T>::value)
-        >
-      { };
-  };
-
-/** \ingroup FixMe FIXME
+/** \ingroup group-fixme FIXME
  * @{ */
 template<typename U>
-struct same_as
+struct is_same_as
   {
     template<typename T>
-      struct apply
-        : std::is_same<U,T>
-      {};
+      using apply = std::is_same<U,T>;
   };
 /** \endcond */
 /** @} */

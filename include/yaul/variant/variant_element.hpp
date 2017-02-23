@@ -17,7 +17,7 @@
 #include <type_traits>
 
 namespace yaul {
-/** \ingroup MetafunctionsGroup
+/** \ingroup group-metafunctions
  * @{ */
 /** // doc: variant_element {{{
  * \todo Write documentation
@@ -49,7 +49,7 @@ template< std::size_t I, typename T >
 #include <yaul/variant/variant_fwd.hpp>
 
 namespace yaul {
-/** \ingroup MetafunctionsGroup
+/** \ingroup group-metafunctions
  * @{ */
 /** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
 template< std::size_t I, typename T0, typename... Others >

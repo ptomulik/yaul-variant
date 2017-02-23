@@ -17,7 +17,7 @@
 #include <cstddef>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup FixMeGroup FIXME:
+/** \ingroup group-fixmeGroup FIXME:
  * @{ */
 /** // doc: variant_index {{{
  * \todo Write documentation

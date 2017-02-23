@@ -4,10 +4,10 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
-// yaul/variant/yaul::detail::variant::recursive_variant.hpp
+// yaul/variant/recursive_variant.hpp
 
-/** // doc: yaul/variant/yaul::detail::variant::recursive_variant.hpp {{{
- * \file yaul/variant/yaul::detail::variant::recursive_variant.hpp
+/** // doc: yaul/variant/recursive_variant.hpp {{{
+ * \file yaul/variant/recursive_variant.hpp
  * \todo Write documentation
  */ // }}}
 #ifndef YAUL_VARIANT_RECURSIVE_VARIANT_HPP

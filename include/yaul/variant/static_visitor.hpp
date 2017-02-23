@@ -43,7 +43,7 @@ template< typename T >
 } } // end namespace yaul::detail
 
 namespace yaul {
-/** \ingroup MetafunctionsGroup
+/** \ingroup group-metafunctions
  * @{ */
 /** // doc: is_static_visitor {{{
  * \todo Write documentation
