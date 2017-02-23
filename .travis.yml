@@ -23,7 +23,6 @@ matrix:
           packages:
             - g++-4.8
             - libboost-dev
-            - libboost-test-dev
 
     # gcc 4.9, linux
     - os: linux
@@ -36,7 +35,6 @@ matrix:
           packages:
             - g++-4.9
             - libboost-dev
-            - libboost-test-dev
 
     # gcc 5, linux
     - os: linux
@@ -49,7 +47,6 @@ matrix:
           packages:
             - g++-5
             - libboost-dev
-            - libboost-test-dev
 
     # gcc 6, linux
     - os: linux
@@ -62,7 +59,6 @@ matrix:
           packages:
             - g++-6
             - libboost-dev
-            - libboost-test-dev
 
     # clang 3.4, linux
     - os: linux
@@ -76,7 +72,6 @@ matrix:
           packages:
             - clang-3.4
             - libboost-dev
-            - libboost-test-dev
 
     # clang 3.5, linux
     - os: linux
@@ -91,7 +86,6 @@ matrix:
           packages:
             - clang-3.5
             - libboost-dev
-            - libboost-test-dev
 
     # clang 3.6, linux
     - os: linux
@@ -106,7 +100,6 @@ matrix:
           packages:
             - clang-3.6
             - libboost-dev
-            - libboost-test-dev
 
     # clang 3.7, linux
     - os: linux
@@ -121,7 +114,6 @@ matrix:
           packages:
             - clang-3.7
             - libboost-dev
-            - libboost-test-dev
 
     # clang 3.8, linux
     - os: linux
@@ -136,7 +128,6 @@ matrix:
           packages:
             - clang-3.8
             - libboost-dev
-            - libboost-test-dev
 
     # clang 3.9, linux
     - os: linux
@@ -151,7 +142,6 @@ matrix:
           packages:
             - clang-3.9
             - libboost-dev
-            - libboost-test-dev
 
 ## OSX is not starting for some reason...
 ##    # clang, osx
