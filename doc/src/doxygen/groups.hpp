@@ -6,11 +6,20 @@
 
 // groups.hpp
 
+/**
+ * \defgroup group-macros Preprocessor macros
+ */
 namespace yaul {
-/** \defgroup group-variant Variant
+/**
+ * \defgroup group-variant Variant
  *
  * This module documents variant's API
+ * @{
  */
+/**
+ * \defgroup group-metafunctions Metafunctions
+ */
+/** @} */
 } // end namespace yaul
 namespace yaul { namespace detail {
 } } // end namespace yaul::detail
@@ -28,7 +37,10 @@ namespace yaul { namespace detail { namespace variant {
  *
  * Metafunctions used across the variant library.
  */
-/** \defgroup group-detail-algorithms Algorithms
+/**
+ * \defgroup group-detail-algorithms Algorithms
+ *
+ * Compile-time algorithms (meta-algorithms) used to implement variant type.
  */
 /** @} */
 } } } // end namespace yaul::detail::variant

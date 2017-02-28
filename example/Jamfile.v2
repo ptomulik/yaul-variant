@@ -5,12 +5,41 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 import testing ;
+import regex ;
 
 project
   : requirements
+    <include>.
+    <include>../include
   ;
 
-test-suite "variant_examples" :
-;
-# [ run yaul/variant/${unit}.cpp  : : : : yaul/variant/${unit} ] ;
-# [ compile yaul/variant/${unit}.cpp  : : yaul/variant/${unit} ] ;
+rule variant-all-examples {
+  local toolset =
+    <toolset>gcc:<cxxflags>"-std=c++11 -Wall -Wextra -pedantic -Werror"
+    <toolset>clang:<cxxflags>"-std=c++11 -Wall -Wextra -pedantic -Werror"
+    <toolset>darwin:<cxxflags>"-std=c++11 -Wall -Wextra -pedantic -Werror"
+  ;
+
+  local result ;
+
+  local sources = [ glob-tree *.cpp : get2.cpp ] ;
+
+  for local source in $(sources)
+  {
+    local target = [ regex.replace $(source) "\.cpp" "" ] ;
+    result += [ run $(source) : : : $(toolset) : test/$(target) ] ;
+  }
+
+  return $(result) ;
+}
+
+test-suite variant : [ variant-all-examples ] ;
+
+# Satisfy the Boost library requirements (?)
+test-suite minimal : variant ;
+test-suite full : variant ;
+test-suite extra : variant ;
+
+explicit variant ;
+explicit minimal ;
+explicit extra ;

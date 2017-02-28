@@ -8,7 +8,11 @@
 
 /** // doc: yaul/variant/recursive_wrapper_fwd.hpp {{{
  * \file yaul/variant/recursive_wrapper_fwd.hpp
- * \todo Write documentation
+ * \brief Provides forward declaration of \ref yaul::recursive_wrapper "recursive_wrapper".
+ *
+ * Also defines \ref yaul::is_recursive_wrapper "is_recursive_wrapper"
+ * and \ref yaul::unwrap_recursive_wrapper "unwrap_recursive_wrapper"
+ * metafunctions.
  */ // }}}
 #ifndef YAUL_VARIANT_RECURSIVE_WRAPPER_FWD_HPP
 #define YAUL_VARIANT_RECURSIVE_WRAPPER_FWD_HPP
@@ -16,10 +20,24 @@
 #include <type_traits>
 
 namespace yaul {
-
 template< typename T > class recursive_wrapper;
+/** // doc: is_recursive_wrapper {{{
+ * \ingroup group-metafunctions
+ * \brief Check if T is a \ref yaul::recursive_wrapper "recursive_wrapper"
+ * \tparam T a type to be examined
+ *
+ * <b>Examples</b>:
+ * \code
+ * #include <yaul/variant/recursive_wrapper_fwd.hpp>
+ * struct T;
+ * static_assert(!yaul::is_recursive_wrapper<T>::value,"");
+ * static_assert( yaul::is_recursive_wrapper< recursive_wrapper<T> >::value, "");
+ * static_assert( yaul::is_recursive_wrapper< recursive_wrapper<T> const >::value, "");
+ * static_assert( yaul::is_recursive_wrapper< recursive_wrapper<T> volatile >::value, "");
+ * static_assert( yaul::is_recursive_wrapper< recursive_wrapper<T> const volatile >::value, "");
+ * \endcode
+ */ // }}}
 template< typename T > struct is_recursive_wrapper;
-
 } // end namespace yaul
 
 namespace yaul { namespace detail {

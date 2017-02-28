@@ -6,7 +6,7 @@
 
 // Define classes which have only forward declarations in code. This way we
 // force doxygen to generate documentation for these classes. To add support
-// for an incomplete class, yust define it here as an empty class.
+// for an incomplete class, just define it here as an empty class.
 
 
 // vim: set expandtab tabstop=2 shiftwidth=2:

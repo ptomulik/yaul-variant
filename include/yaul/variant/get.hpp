@@ -8,7 +8,7 @@
 
 /** // doc: yaul/variant/get.hpp {{{
  * \file yaul/variant/get.hpp
- * \todo Write documentation
+ * \brief Implements \ref yaul::get "get()" function for \ref yaul::variant "variant"s
  */ // }}}
 #ifndef YAUL_VARIANT_GET_HPP
 #define YAUL_VARIANT_GET_HPP

@@ -8,7 +8,7 @@
 
 /** // doc: yaul/variant/bad_visit.hpp {{{
  * \file yaul/variant/bad_visit.hpp
- * \todo Write documentation
+ * \brief Provides definition of \ref yaul::bad_visit "bad_visit" exception class.
  */ // }}}
 #ifndef YAUL_VARIANT_BAD_VISIT_HPP
 #define YAUL_VARIANT_BAD_VISIT_HPP

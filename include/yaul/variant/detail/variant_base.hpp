@@ -34,6 +34,9 @@ struct invoked_advertently_t {};
 } } } // end namespace yaul::detail::variant
 
 namespace yaul { namespace detail { namespace variant {
+/** // doc: variant_base {{{
+ * \todo Write documentation
+ */ // }}}
 template< typename Variant, bool TrivialDtor = all_trivially_destructible<Variant>::value >
   class variant_base
   {

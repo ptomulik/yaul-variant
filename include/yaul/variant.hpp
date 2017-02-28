@@ -8,7 +8,7 @@
 
 /** // doc: yaul/variant.hpp {{{
  * \file yaul/variant.hpp
- * \todo Write documentation
+ * \brief Includes \ref yaul/variant/variant.hpp
  */ // }}}
 #ifndef YAUL_VARIANT_HPP
 #define YAUL_VARIANT_HPP
