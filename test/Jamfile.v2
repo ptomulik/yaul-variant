@@ -9,7 +9,7 @@ import regex ;
 
 project
   : requirements
-    <include>.
+    <include>./include
     <include>../include
   ;
 
@@ -22,7 +22,7 @@ rule variant-all-tests {
 
   local result ;
 
-  local sources = [ glob-tree *.cpp : get2.cpp ] ;
+  local sources = [ glob-tree *.cpp : ] ;
 
   for local source in $(sources)
   {
