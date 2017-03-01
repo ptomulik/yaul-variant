@@ -1,0 +1,45 @@
+# Copyright (C) 2014, Pawel Tomulik <ptomulik@meil.pw.edu.pl>
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+import testing ;
+import regex ;
+
+project
+  : requirements
+    <include>.
+    <include>../include
+  ;
+
+rule variant-all-tests {
+  local toolset =
+    <toolset>gcc:<cxxflags>"-std=c++11 -Wall -Wextra -pedantic -Werror"
+    <toolset>clang:<cxxflags>"-std=c++11 -Wall -Wextra -pedantic -Werror"
+    <toolset>darwin:<cxxflags>"-std=c++11 -Wall -Wextra -pedantic -Werror"
+  ;
+
+  local result ;
+
+  local sources = [ glob-tree *.cpp : get2.cpp ] ;
+
+  for local source in $(sources)
+  {
+    local target = [ regex.replace $(source) "\.cpp" "" ] ;
+    result += [ run $(source) : : : $(toolset) : test/$(target) ] ;
+  }
+
+  return $(result) ;
+}
+
+test-suite variant : [ variant-all-tests ] ;
+
+# Satisfy the Boost library requirements (?)
+test-suite minimal : variant ;
+test-suite full : variant ;
+test-suite extra : variant ;
+
+explicit variant ;
+explicit minimal ;
+explicit extra ;

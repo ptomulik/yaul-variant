@@ -1,0 +1,194 @@
+# Copyright (c) 2017, Paweł Tomulik <ptomulik@meil.pw.edu.pl>
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+language: c++
+sudo: false
+
+dist: precise
+
+matrix:
+  include:
+
+    # gcc 4.8, linux
+    - os: linux
+      env: USECXX="g++-4.8" USECC="gcc-4.8" TOOLSET=gcc
+      compiler: gcc
+      addons:
+        apt:
+          sources: &sources
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.8
+            - libboost-dev
+
+    # gcc 4.9, linux
+    - os: linux
+      env: USECXX="g++-4.9" USECC="gcc-4.9" TOOLSET=gcc
+      compiler: gcc
+      addons:
+        apt:
+          sources: &sources
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.9
+            - libboost-dev
+
+    # gcc 5, linux
+    - os: linux
+      env: USECXX="g++-5" USECC="gcc-5" TOOLSET=gcc
+      compiler: gcc
+      addons:
+        apt:
+          sources: &sources
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+            - libboost-dev
+
+    # gcc 6, linux
+    - os: linux
+      env: USECXX="g++-6" USECC="gcc-6" TOOLSET=gcc
+      compiler: gcc
+      addons:
+        apt:
+          sources: &sources
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+            - libboost-dev
+
+    # clang 3.4, linux
+    - os: linux
+      env: USECXX="clang++" USECC="clang" TOOLSET=clang
+      compiler: clang
+      addons:
+        apt:
+          sources: &sources
+            - llvm-toolchain-precise
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.4
+            - libboost-dev
+
+    # clang 3.5, linux
+    - os: linux
+      env: USECXX="clang++-3.5" USECC="clang-3.5" TOOLSET=clang
+      compiler: clang
+      addons:
+        apt:
+          sources: &sources
+            - llvm-toolchain-precise
+            - llvm-toolchain-precise-3.5
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.5
+            - libboost-dev
+
+    # clang 3.6, linux
+    - os: linux
+      env: USECXX="clang++-3.6" USECC="clang-3.6" TOOLSET=clang
+      compiler: clang
+      addons:
+        apt:
+          sources: &sources
+            - llvm-toolchain-precise
+            - llvm-toolchain-precise-3.6
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.6
+            - libboost-dev
+
+    # clang 3.7, linux
+    - os: linux
+      env: USECXX="clang++-3.7" USECC="clang-3.7" TOOLSET=clang
+      compiler: clang
+      addons:
+        apt:
+          sources: &sources
+            - llvm-toolchain-precise
+            - llvm-toolchain-precise-3.7
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.7
+            - libboost-dev
+
+    # clang 3.8, linux
+    - os: linux
+      env: USECXX="clang++-3.8" USECC="clang-3.8" TOOLSET=clang
+      compiler: clang
+      addons:
+        apt:
+          sources: &sources
+            - llvm-toolchain-precise
+            - llvm-toolchain-precise-3.8
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.8
+            - libboost-dev
+
+    # clang 3.9, linux
+    - os: linux
+      env: USECXX="clang++-3.9" USECC="clang-3.9" TOOLSET=clang
+      compiler: clang
+      addons:
+        apt:
+          sources: &sources
+            - llvm-toolchain-precise
+            - llvm-toolchain-precise-3.9
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.9
+            - libboost-dev
+
+## OSX is not starting for some reason...
+##    # clang, osx
+##    - os: osx
+##      env: TOOLSET=clang
+##      compiler: clang
+
+  # clang 3.4 does not work, investigating...
+  allow_failures:
+    - os: linux
+      env: USECXX="clang++" USECC="clang" TOOLSET=clang
+      compiler: clang
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lsb_release -c; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lsb_release -r; fi
+
+install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boost; fi
+# Uncomment the following to enable coveralls support.
+#  - sudo pip install cpp-coveralls;
+
+before_script:
+  - if [[ "${USECC}" != "" ]]; then export CC=$USECC; fi
+  - if [[ "${USECXX}" != "" ]]; then export CXX=$USECXX; fi
+  - |
+    touch Jamroot
+    echo "using ${TOOLSET} : : ${CXX} ;" > project-config.jam
+
+  - cat project-config.jam
+
+script:
+  - bjam toolset=$TOOLSET -d+2 -a test example
+  - bjam toolset=$TOOLSET -d+2 -a test test
+
+# Uncomment the following block to enable code coverage support.
+#after_success:
+#    GCOV=gcov-`$CXX -dumpversion | sed -e 's/^\([0-9]\+\.[0-9]\+\).*$/\1/'`;
+#    which $GCOV || GCOV="";
+#    echo "gcov: $GCOV";
+#    if [ ! -z "$GCOV" ]; then
+#      coveralls --gcov $GCOV --gcov-options '\-p \-l' -b . -r . -e .git
+#                 -e CMakeFiles -e docs -e /usr;
+#    fi
+
+# Use after_failure to reveal *.log files that were generated during config
+# phase and so on. We should print to console as much information as we can,
+# to quickly find the cause of a failure.
+#after_failure:
+#  - ...
