@@ -16,7 +16,7 @@
 namespace yaul { namespace detail { namespace variant {
 /** // doc: substitute {{{
  * \brief Handles embedded variant types when substituting for
- *        \ref yaul::recursive_variant_t "recursive_variant_t"
+ *        \ref yaul::recursive_variant_tag "recursive_variant_tag"
  *
  * \tparam T a type to be "scanned" for \c Source type, \c T may be
  *         cv-qualified type, may also be a pointer or reference type,
