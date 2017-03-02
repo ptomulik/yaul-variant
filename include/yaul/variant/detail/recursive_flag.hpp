@@ -8,18 +8,18 @@
 
 /** // doc: yaul/variant/detail/recursive_flag.hpp {{{
  * \file yaul/variant/detail/recursive_flag.hpp
- * \todo Write documentation
+ * \brief Provides \ref yaul::detail::variant::recursive_flag
  */ // }}}
 #ifndef YAUL_VARIANT_DETAIL_RECURSIVE_FLAG_HPP
 #define YAUL_VARIANT_DETAIL_RECURSIVE_FLAG_HPP
 
-#include <type_traits>
-
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup group-fixme FIXME:
- * @{ */
+
 /** // doc: recursive_flag {{{
- * \todo Write documentation
+ * \brief A type wrapper used to distinguish recursive variants from others
+ *
+ * A recursive variant shall use `recursive_flag<T0>` (instead of `T0`)
+ * as the first alternative on the type list.
  */ // }}}
 template< typename T >
   struct recursive_flag
@@ -27,25 +27,38 @@ template< typename T >
     typedef T type;
   };
 
-template< typename T >
-  struct is_recursive_flag_impl
-    : std::integral_constant<bool, false>
-  {
-  };
-
+/** // doc: remove_recursive_flag {{{
+ * \brief Unwraps the \ref recursive_flag wrapper.
+ *
+ * \tparam T An input type
+ *
+ * \par Synopsis
+ * \code
+ * template<typename T>
+ * struct remove_recursive_flag
+ * {
+ *    typedef unspecified type;
+ * };
+ * \endcode
+ *
+ * \par Description
+ * for any type `X`
+ * \code
+ * using R = remove_recursive_flag< recursive_flag<X> >::type;
+ * \endcode
+ * yields `X`, and
+ * \code
+ * using R = remove_recursive_flag<X>::type;
+ * \endcode
+ * yields the input type `X`.
+ */ // }}}
 template< typename T >
   struct remove_recursive_flag
   {
     typedef T type;
   };
 
-
 /** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
-template< typename T >
-  struct is_recursive_flag_impl< recursive_flag<T> >
-    : std::integral_constant<bool, true>
-  { };
-
 template< typename T >
   struct remove_recursive_flag< recursive_flag<T> >
   {
@@ -53,17 +66,6 @@ template< typename T >
   };
 /** \endcond */
 
-/** // doc: is_recursive_flag {{{
- * \todo Write documentation
- */ // }}}
-template< typename T >
-  struct is_recursive_flag
-    : is_recursive_flag_impl< typename std::remove_cv<T>::type >
-  {
-
-  };
-
-/** @} */
 } } } // end namespace yaul::detail::variant
 
 #endif /* YAUL_VARIANT_DETAIL_RECURSIVE_FLAG_HPP */
