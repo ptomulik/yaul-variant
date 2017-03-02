@@ -14,11 +14,8 @@
 #define YAUL_VARIANT_VARIANT_FWD_HPP
 
 namespace yaul {
-/** \ingroup group-fixme FIXME:
- * @{ */
 template< typename T0, typename... Others > class variant;
 template< typename T0, typename... Others > struct make_recursive_variant;
-/** @} */
 } // end namespace yaul
 
 #endif /* YAUL_VARIANT_VARIANT_FWD_HPP */
