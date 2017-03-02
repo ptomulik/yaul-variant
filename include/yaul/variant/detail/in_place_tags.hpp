@@ -8,7 +8,8 @@
 
 /** // doc: yaul/variant/detail/in_place_tags.hpp {{{
  * \file yaul/variant/detail/in_place_tags.hpp
- * \todo Write documentation
+ * \brief Provides \ref yaul::variant::detail::in_place_type_t and
+ *        \ref yaul::variant::detail::in_place_index_t
  */ // }}}
 #ifndef YAUL_VARIANT_DETAIL_IN_PLACE_TAGS_HPP
 #define YAUL_VARIANT_DETAIL_IN_PLACE_TAGS_HPP
