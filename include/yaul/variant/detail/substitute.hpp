@@ -39,24 +39,24 @@ namespace yaul { namespace detail { namespace variant {
  * \par Description
  * Whenever \c Source is found in \c T, it gets substituted with \c Dest. The
  * metafunction walks recursively through \c T (if T is an instantiation of
- * a template class type) searching for \c Source and substitutes every
+ * a class template) searching for \c Source and substitutes every
  * occurrence of \c Source with \c Dest. When substituting, it preservers
  * cv-qualifiers, references and pointers that were originally applied to
  * the occurrences of \c Source in \c T. The main purpose of this metafunction
- * is to substitute \ref yaul::recursive_variant_ "recursive_variant_" with
+ * is to substitute \ref yaul::recursive_variant_tag "recursive_variant_tag" with
  * appropriate variant type. This is usually achieved with the following use
  * \code
- * using R = typename substitute<InputVariant, RecursiveVariant, yaul::recursive_variant_>::type;
+ * using R = typename substitute<InputVariant, RecursiveVariant, yaul::recursive_variant_tag>::type;
  * \endcode
  * where \c RecursiveVariant is the actual variant type, such as
- * \c variant<recursive_flag<T0>,T1,...> possibly having \c recursive_variant_
+ * \c variant<recursive_flag<T0>,T1,...> possibly having \c recursive_variant_tag
  * as one of its types \c Ti.
  *
  * \par Example
  * \code
  *   // substitute "double" with "char" in "int" (no match)
  *   using R = substitute<int, char, double>::type;       // R = int
- *   // substitued "int" with "char" in "int"
+ *   // substitute "int" with "char" in "int"
  *   using R = substitute<int, char, int>::type;          // R = char
  *   // substitute "int" with "char" in "int const"
  *   using R = substitute<int const, char, int>::type;    // R = char const

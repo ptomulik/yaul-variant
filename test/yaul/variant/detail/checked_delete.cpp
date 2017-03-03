@@ -9,7 +9,7 @@
 
 
 // it seems to be impossible to test real purpose of checked_delete,
-// but we may at least test existence of the functions
+// but we may at least test its existence and some properties, like noexcept
 
 struct S
 {
@@ -23,6 +23,9 @@ int S::count = 0;
 
 using yaul::detail::variant::checked_delete;
 using yaul::detail::variant::checked_array_delete;
+
+static_assert(noexcept(checked_delete(std::declval<S*>())), "");
+static_assert(noexcept(checked_array_delete(std::declval<S*>())), "");
 
 int main()
 {

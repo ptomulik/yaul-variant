@@ -8,8 +8,8 @@
 
 /** // doc: yaul/variant/detail/checked_delete.hpp {{{
  * \file yaul/variant/detail/checked_delete.hpp
- * \brief Implements \ref yaul::detail::variant::checker_delete() and
- *        \ref yaul::detail::variant::checket_array_delete()
+ * \brief Implements \ref yaul::detail::variant::checked_delete() and
+ *        \ref yaul::detail::variant::checked_array_delete()
  */ // }}}
 #ifndef YAUL_VARIANT_DETAIL_CHECKED_DELETE_HPP
 #define YAUL_VARIANT_DETAIL_CHECKED_DELETE_HPP
