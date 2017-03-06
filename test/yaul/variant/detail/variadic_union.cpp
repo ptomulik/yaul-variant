@@ -85,7 +85,11 @@ constexpr M_S1 const m_s1_lc{_0};
 static_assert( m_s1_lc.get().qual() == q_lr_c, "");
 
 constexpr M_S1 const m_s1_rc{_0};
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
 static_assert( std::move(m_s1_rc).get().qual() == q_rr_c, "");
+#else
+static_assert( std::move(m_s1_rc).get().qual() == q_lr_c, "");
+#endif
 
 void test__variadic_union_member__with_S1()
 {
@@ -331,7 +335,11 @@ constexpr variadic_union<int, S1> u_is1_rc_02{_0, 2};
 constexpr variadic_union<int, S1> u_is1_rc_1_{_0};
 
 static_assert(std::move(u_is1_rc_02).get(_0) == 2, "");
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
 static_assert(std::move(u_is1_rc_1_).get(_1).qual() == q_rr_c, "");
+#else
+static_assert(std::move(u_is1_rc_1_).get(_1).qual() == q_lr_c, "");
+#endif
 
 void test__variadic_union__00()
 {
@@ -377,6 +385,7 @@ void test__variadic_union__01()
     variadic_union<int, S1> u(_1);
     YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr);
   }
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
   {
     variadic_union<int, S1> const u(_1);
     YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_c);
@@ -389,6 +398,7 @@ void test__variadic_union__01()
     variadic_union<int, S1> const volatile u(_1);
     YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_cv);
   }
+#endif
 }
 
 void test__variadic_union__02()
@@ -427,6 +437,7 @@ void test__variadic_union__02()
     u.get(_0) = S1{};
     YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr);
   }
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
   {
     variadic_union<S1, S2> const u(_1);
     YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_c);
@@ -448,6 +459,7 @@ void test__variadic_union__02()
     //u.get(_0) = S1{};
     //YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_cv);
   }
+#endif
 }
 
 int main()
