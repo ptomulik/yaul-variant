@@ -8,8 +8,6 @@
 #include <yaul/variant/test_config.hpp>
 #include <type_traits>
 
-using yaul::detail::variant::variadic_element;
-using yaul::detail::variant::variadic_union_member;
 using yaul::detail::variant::variadic_union;
 using yaul::detail::variant::in_place_index_t;
 
@@ -17,21 +15,6 @@ constexpr in_place_index_t<0ul> _0{};
 constexpr in_place_index_t<1ul> _1{};
 //constexpr in_place_index_t<2ul> _2{};
 //constexpr in_place_index_t<3ul> _3{};
-
-using M_int = variadic_union_member<int>;
-static_assert( std::is_trivially_destructible< M_int >::value, "");
-static_assert(!std::is_default_constructible< M_int >::value, "");
-static_assert( std::is_constructible< M_int, in_place_index_t<0ul> >::value, "");
-static_assert( std::is_constructible< M_int, in_place_index_t<0ul>, int >::value, "");
-
-// check some constant expressions
-constexpr M_int const m_int_c_2{_0, 2};
-static_assert( m_int_c_2.get() == 2, "");
-
-#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
-constexpr M_int const m_int_rc_2{_0, 2};
-static_assert( std::move(m_int_rc_2).get() == 2, "");
-#endif // YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
 
 enum qual_t {
   q_lr,     // l-value reference
@@ -76,61 +59,6 @@ struct S1
 #endif
 };
 
-using M_S1 = variadic_union_member<S1>;
-static_assert( std::is_trivially_destructible< M_S1 >::value, "");
-static_assert(!std::is_default_constructible< M_S1 >::value, "");
-static_assert( std::is_constructible< M_S1, in_place_index_t<0ul> >::value, "");
-
-constexpr M_S1 const m_s1_lc{_0};
-static_assert( m_s1_lc.get().qual() == q_lr_c, "");
-
-constexpr M_S1 const m_s1_rc{_0};
-#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
-static_assert( std::move(m_s1_rc).get().qual() == q_rr_c, "");
-#else
-static_assert( std::move(m_s1_rc).get().qual() == q_lr_c, "");
-#endif
-
-void test__variadic_union_member__with_S1()
-{
-  {
-    M_S1 m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr);
-  }
-  {
-    M_S1 const m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_c);
-  }
-  {
-    M_S1 volatile m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_v);
-  }
-  {
-    M_S1 const volatile m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_cv);
-  }
-  {
-    M_S1 m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr);
-  }
-#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
-  {
-    M_S1 const m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_c);
-  }
-  {
-    M_S1 volatile m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_v);
-  }
-  {
-    M_S1 const volatile m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_cv);
-  }
-#endif
-}
-
-
-
 // nontrivially destructible
 struct S2
 {
@@ -147,49 +75,6 @@ struct S2
   qual_t qual() const volatile&& noexcept { return q_rr_cv; }
 #endif
 };
-using M_S2 = variadic_union_member<S2>;
-static_assert( std::is_trivially_destructible< M_S2 >::value, "");
-static_assert(!std::is_default_constructible< M_S2 >::value, "");
-static_assert( std::is_constructible< M_S2, in_place_index_t<0ul> >::value, "");
-
-void test__variadic_union_member__with_S2()
-{
-  {
-    M_S2 m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr);
-  }
-  {
-    M_S2 const m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_c);
-  }
-  {
-    M_S2 volatile m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_v);
-  }
-  {
-    M_S2 const volatile m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_cv);
-  }
-  {
-    M_S2 m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr);
-  }
-#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
-  {
-    M_S2 const m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_c);
-  }
-  {
-    M_S2 volatile m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_v);
-  }
-  {
-    M_S2 const volatile m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_cv);
-  }
-#endif
-}
-
 
 // trivially destructible but has some non-constexpr c-tors
 struct S3
@@ -211,96 +96,6 @@ struct S3
 };
 static_assert(!std::is_literal_type<S3>::value, "");
 static_assert( std::is_trivially_destructible<S3>::value, "");
-
-using M_S3 = variadic_union_member<S3>;
-static_assert( std::is_trivially_destructible< M_S3 >::value, "");
-static_assert(!std::is_default_constructible< M_S3 >::value, "");
-static_assert( std::is_constructible< M_S3, in_place_index_t<0ul> >::value, "");
-
-void test__variadic_union_member__with_S3()
-{
-  {
-    M_S3 m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr);
-  }
-  {
-    M_S3 const m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_c);
-  }
-  {
-    M_S3 volatile m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_v);
-  }
-  {
-    M_S3 const volatile m{_0};
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_cv);
-  }
-  {
-    M_S3 m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr);
-  }
-#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
-  {
-    M_S3 const m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_c);
-  }
-  {
-    M_S3 volatile m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_v);
-  }
-  {
-    M_S3 const volatile m{_0};
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_cv);
-  }
-#endif
-
-  {
-    M_S3 m{_0,2};
-    YAUL_VARIANT_CHECK(m.get().i == 2);
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr);
-  }
-  {
-    M_S3 const m{_0,2};
-    YAUL_VARIANT_CHECK(m.get().i == 2);
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_c);
-  }
-  {
-    M_S3 volatile m{_0,2};
-    YAUL_VARIANT_CHECK(m.get().i == 2);
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_v);
-  }
-  {
-    M_S3 const volatile m{_0,2};
-    YAUL_VARIANT_CHECK(m.get().i == 2);
-    YAUL_VARIANT_CHECK(m.get().qual() == q_lr_cv);
-  }
-  {
-    M_S3 m{_0,2};
-    YAUL_VARIANT_CHECK(std::move(m).get().i == 2);
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr);
-  }
-#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
-  {
-    M_S3 const m{_0,2};
-    YAUL_VARIANT_CHECK(std::move(m).get().i == 2);
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_c);
-  }
-  {
-    M_S3 volatile m{_0,2};
-    YAUL_VARIANT_CHECK(std::move(m).get().i == 2);
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_v);
-  }
-  {
-    M_S3 const volatile m{_0,2};
-    YAUL_VARIANT_CHECK(std::move(m).get().i == 2);
-    YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_cv);
-  }
-#endif
-}
-
-static_assert(std::is_same<variadic_element<0ul, int>::type, int>::value, "");
-static_assert(std::is_same<variadic_element<0ul, int, char>::type, int>::value, "");
-static_assert(std::is_same<variadic_element<1ul, int, char>::type, char>::value, "");
 
 using U_i = variadic_union<int>;
 using U_ic = variadic_union<int,char>;
@@ -464,9 +259,6 @@ void test__variadic_union__02()
 
 int main()
 {
-  test__variadic_union_member__with_S1();
-  test__variadic_union_member__with_S2();
-  test__variadic_union_member__with_S3();
   test__variadic_union__00();
   test__variadic_union__01();
   test__variadic_union__02();
