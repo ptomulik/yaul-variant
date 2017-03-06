@@ -13,7 +13,7 @@ using yaul::detail::variant::in_place_index_t;
 
 constexpr in_place_index_t<0ul> _0{};
 constexpr in_place_index_t<1ul> _1{};
-//constexpr in_place_index_t<2ul> _2{};
+constexpr in_place_index_t<2ul> _2{};
 //constexpr in_place_index_t<3ul> _3{};
 
 enum qual_t {
@@ -157,14 +157,26 @@ void test__variadic_union__00()
 void test__variadic_union__01()
 {
   {
+    variadic_union<int, S1> u(_0,2);
+    YAUL_VARIANT_CHECK(u.get(_0) == 2);
+  }
+  {
     variadic_union<int, S1> u(_1);
     YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr);
     u.get(_0) = 2;
     YAUL_VARIANT_CHECK(u.get(_0) == 2);
   }
   {
+    variadic_union<int, S1> const u(_0,2);
+    YAUL_VARIANT_CHECK(u.get(_0) == 2);
+  }
+  {
     variadic_union<int, S1> const u(_1);
     YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr_c);
+  }
+  {
+    variadic_union<int, S1> volatile u(_0,2);
+    YAUL_VARIANT_CHECK(u.get(_0) == 2);
   }
   {
     variadic_union<int, S1> volatile u(_1);
@@ -173,8 +185,16 @@ void test__variadic_union__01()
     YAUL_VARIANT_CHECK(u.get(_0) == 2);
   }
   {
+    variadic_union<int, S1> const volatile u(_0,2);
+    YAUL_VARIANT_CHECK(u.get(_0) == 2);
+  }
+  {
     variadic_union<int, S1> const volatile u(_1);
     YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr_cv);
+  }
+  {
+    variadic_union<int, S1> u(_0,2);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0) == 2);
   }
   {
     variadic_union<int, S1> u(_1);
@@ -182,12 +202,24 @@ void test__variadic_union__01()
   }
 #ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
   {
+    variadic_union<int, S1> const u(_0,2);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0) == 2);
+  }
+  {
     variadic_union<int, S1> const u(_1);
     YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_c);
   }
   {
+    variadic_union<int, S1> volatile u(_0,2);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0) == 2);
+  }
+  {
     variadic_union<int, S1> volatile u(_1);
     YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_v);
+  }
+  {
+    variadic_union<int, S1> const volatile u(_0, 2);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0) == 2);
   }
   {
     variadic_union<int, S1> const volatile u(_1);
@@ -199,32 +231,46 @@ void test__variadic_union__01()
 void test__variadic_union__02()
 {
   {
+    variadic_union<S1, S2> u(_0);
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr);
+    u.get(_1) = S2{};
+    YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr);
+  }
+  {
     variadic_union<S1, S2> u(_1);
     YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr);
     u.get(_0) = S1{};
     YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr);
   }
   {
+    variadic_union<S1, S2> const u(_0);
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr_c);
+  }
+  {
     variadic_union<S1, S2> const u(_1);
     YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr_c);
-    // const!!
-    //u.get(_0) = S1{};
-    //YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr_c);
+  }
+  {
+    variadic_union<S1, S2> volatile u(_0);
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr_v);
   }
   {
     variadic_union<S1, S2> volatile u(_1);
     YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr_v);
-    // volatile!
-    // S1 s;
-    // u.get(_0) = s;
-    // YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr_v);
+  }
+  {
+    variadic_union<S1, S2> const volatile u(_0);
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr_cv);
   }
   {
     variadic_union<S1, S2> const volatile u(_1);
     YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr_cv);
-    // const!
-    //u.get(_0) = S1{};
-    //YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr_cv);
+  }
+  {
+    variadic_union<S1, S2> u(_0);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr);
+    u.get(_1) = S2{};
+    YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr);
   }
   {
     variadic_union<S1, S2> u(_1);
@@ -234,25 +280,162 @@ void test__variadic_union__02()
   }
 #ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
   {
+    variadic_union<S1, S2> const u(_0);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_c);
+  }
+  {
     variadic_union<S1, S2> const u(_1);
     YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_c);
-    // const!
-    //u.get(_0) = S1{};
-    //YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_c);
+  }
+  {
+    variadic_union<S1, S2> volatile u(_0);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_v);
   }
   {
     variadic_union<S1, S2> volatile u(_1);
     YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_v);
-    // volatile!
-    // u.get(_0) = S1{};
-    // YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_v);
+  }
+  {
+    variadic_union<S1, S2> const volatile u(_0);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_cv);
   }
   {
     variadic_union<S1, S2> const volatile u(_1);
     YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_cv);
-    // const!
-    //u.get(_0) = S1{};
-    //YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_cv);
+  }
+#endif
+}
+
+void test__variadic_union__03()
+{
+  // &
+  {
+    variadic_union<S1, S2, S3> u(_0);
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr);
+    u.get(_1) = S2{};
+    YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr);
+    u.get(_2) = S3{};
+    YAUL_VARIANT_CHECK(u.get(_2).qual() == q_lr);
+  }
+  {
+    variadic_union<S1, S2, S3> u(_1);
+    YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr);
+    u.get(_0) = S1{};
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr);
+    u.get(_2) = S3{};
+    YAUL_VARIANT_CHECK(u.get(_2).qual() == q_lr);
+  }
+  {
+    variadic_union<S1, S2, S3> u(_2);
+    YAUL_VARIANT_CHECK(u.get(_2).qual() == q_lr);
+    u.get(_0) = S1{};
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr);
+    u.get(_1) = S2{};
+    YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr);
+  }
+  // const&
+  {
+    variadic_union<S1, S2, S3> const u(_0);
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr_c);
+  }
+  {
+    variadic_union<S1, S2, S3> const u(_1);
+    YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr_c);
+  }
+  {
+    variadic_union<S1, S2, S3> const u(_2);
+    YAUL_VARIANT_CHECK(u.get(_2).qual() == q_lr_c);
+  }
+  // volatile&
+  {
+    variadic_union<S1, S2, S3> volatile u(_0);
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr_v);
+  }
+  {
+    variadic_union<S1, S2, S3> volatile u(_1);
+    YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr_v);
+  }
+  {
+    variadic_union<S1, S2, S3> volatile u(_2);
+    YAUL_VARIANT_CHECK(u.get(_2).qual() == q_lr_v);
+  }
+  // const volatile&
+  {
+    variadic_union<S1, S2, S3> const volatile u(_0);
+    YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr_cv);
+  }
+  {
+    variadic_union<S1, S2, S3> const volatile u(_1);
+    YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr_cv);
+  }
+  {
+    variadic_union<S1, S2, S3> const volatile u(_2);
+    YAUL_VARIANT_CHECK(u.get(_2).qual() == q_lr_cv);
+  }
+  // &&
+  {
+    variadic_union<S1, S2, S3> u(_0);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr);
+    u.get(_1) = S2{};
+    YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr);
+    u.get(_2) = S3{};
+    YAUL_VARIANT_CHECK(std::move(u).get(_2).qual() == q_rr);
+  }
+  {
+    variadic_union<S1, S2, S3> u(_1);
+    YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr);
+    u.get(_0) = S1{};
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr);
+    u.get(_2) = S3{};
+    YAUL_VARIANT_CHECK(std::move(u).get(_2).qual() == q_rr);
+  }
+  {
+    variadic_union<S1, S2, S3> u(_2);
+    YAUL_VARIANT_CHECK(std::move(u).get(_2).qual() == q_rr);
+    u.get(_0) = S1{};
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr);
+    u.get(_1) = S2{};
+    YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr);
+  }
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+  // const&&
+  {
+    variadic_union<S1, S2, S3> const u(_0);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_c);
+  }
+  {
+    variadic_union<S1, S2, S3> const u(_1);
+    YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_c);
+  }
+  {
+    variadic_union<S1, S2, S3> const u(_2);
+    YAUL_VARIANT_CHECK(std::move(u).get(_2).qual() == q_rr_c);
+  }
+  // volatile&&
+  {
+    variadic_union<S1, S2, S3> volatile u(_0);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_v);
+  }
+  {
+    variadic_union<S1, S2, S3> volatile u(_1);
+    YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_v);
+  }
+  {
+    variadic_union<S1, S2, S3> volatile u(_2);
+    YAUL_VARIANT_CHECK(std::move(u).get(_2).qual() == q_rr_v);
+  }
+  // const volatile&&
+  {
+    variadic_union<S1, S2, S3> const volatile u(_0);
+    YAUL_VARIANT_CHECK(std::move(u).get(_0).qual() == q_rr_cv);
+  }
+  {
+    variadic_union<S1, S2, S3> const volatile u(_1);
+    YAUL_VARIANT_CHECK(std::move(u).get(_1).qual() == q_rr_cv);
+  }
+  {
+    variadic_union<S1, S2, S3> const volatile u(_2);
+    YAUL_VARIANT_CHECK(std::move(u).get(_2).qual() == q_rr_cv);
   }
 #endif
 }
@@ -262,5 +445,6 @@ int main()
   test__variadic_union__00();
   test__variadic_union__01();
   test__variadic_union__02();
+  test__variadic_union__03();
   return YAUL_VARIANT_TEST_EXIT_CODE;
 }

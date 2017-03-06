@@ -27,6 +27,70 @@ namespace yaul { namespace detail { namespace variant {
 // (and ctors), so we can't just use std::aligned_storage in constexpr context.
 // For that reason, a facility such as variadic union has to be used.
 //
+
+/** // doc: variadic_union {{{
+ * \brief An template union with variadic list of types
+ *
+ * \tparam Types Alternative types to be supported by union
+ *
+ * \par Synopsis
+ * \code
+ *  template<typename... Types>
+ *  union variadic_union
+ *  {
+ *  private:
+ *    template<std::size_t I>
+ *    using T = typename variadic_element<I, Types...>::type;         // (1)
+ *
+ *  public:
+ *    template<std::size_t I, typename... Args>
+ *    constexpr variadic_union(in_place_index_t<I>, Args&&... args);  // (2)
+ *
+ *    template<std::size_t I>
+ *    constexpr T<I>&
+ *    get(in_place_index_t<I>)& noexcept;
+ *
+ *    template<std::size_t I>
+ *    constexpr T<I> const&
+ *    get(in_place_index_t<I>) const& noexcept;
+ *
+ *    template<std::size_t I>
+ *    constexpr T<I> volatile&
+ *    get(in_place_index_t<I>) volatile& noexcept;
+ *
+ *    template<std::size_t I>
+ *    constexpr T<I> const volatile&
+ *    get(in_place_index_t<I>) const volatile& noexcept;
+ *
+ *    template<std::size_t I>
+ *    constexpr T<I>&&
+ *    get(in_place_index_t<I>)&& noexcept;
+ *
+ *    template<std::size_t I>
+ *    constexpr T<I> const&&
+ *    get(in_place_index_t<I>) const&& noexcept;
+ *
+ *    template<std::size_t I>
+ *    constexpr T<I> volatile&&
+ *    get(in_place_index_t<I>) volatile&& noexcept;
+ *
+ *    template<std::size_t I>
+ *    constexpr T<I> const volatile&&
+ *    get(in_place_index_t<I>) const volatile&& noexcept;
+ *  };
+ * \endcode
+ *
+ * (1) Actual declaration of `T` is quite different and in particular doesn't
+ *     work for `I == 0`.
+ *
+ * (2) If the underlying constructor call `T<I>(std::forward<Args>(args)...)`
+ *     is `noexcept` then `variadic_union(in_place_index_t<I>{}, args...)` is
+ *     also `noexcept`.
+ *
+ * \par Description
+ * \ref yaul::detail::variant::variadic_union "Variadic_union" supports value
+ * initialization and retrieval of one of alternative `Types...`.
+ */ // }}}
 template<typename... Types>
 union variadic_union{ };
 
@@ -34,6 +98,7 @@ union variadic_union{ };
 template<typename First, typename... Rest>
 union variadic_union<First, Rest...>
 {
+private:
   variadic_union_member<First> first;
   variadic_union<Rest...> rest;
 
@@ -43,16 +108,20 @@ union variadic_union<First, Rest...>
 //    : rest()
 //  { }
 
+  template<std::size_t I>
+  using T = typename variadic_element<I-1,Rest...>::type;
+
+public:
   template<typename... Args>
   constexpr variadic_union(in_place_index_t<0ul>, Args&&... args)
     noexcept(noexcept(variadic_union_member<First>(in_place_index_t<0ul>{}, std::forward<Args>(args)...)))
     : first(in_place_index_t<0ul>{}, std::forward<Args>(args)...)
   { }
 
-  template<std::size_t Np, typename... Args>
-  constexpr variadic_union(in_place_index_t<Np>, Args&&... args)
-    noexcept(noexcept(variadic_union<Rest...>(in_place_index_t<Np-1>{}, std::forward<Args>(args)...)))
-    : rest(in_place_index_t<Np-1>{}, std::forward<Args>(args)...)
+  template<std::size_t I, typename... Args>
+  constexpr variadic_union(in_place_index_t<I>, Args&&... args)
+    noexcept(noexcept(variadic_union<Rest...>(in_place_index_t<I-1>{}, std::forward<Args>(args)...)))
+    : rest(in_place_index_t<I-1>{}, std::forward<Args>(args)...)
   { }
 
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
@@ -97,62 +166,62 @@ union variadic_union<First, Rest...>
   { return std::move(first).get(); }
 #endif // YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
 
-  template<std::size_t Np>
+  template<std::size_t I>
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
   constexpr
 #endif
-  typename variadic_element<(Np-1), Rest...>::type& // causes SFINAE
-  get(in_place_index_t<Np>)& noexcept
-  { return rest.get(in_place_index_t<Np-1>{}); }
+  T<I>& // SFINAEd out if I >= sizeof...(Types)
+  get(in_place_index_t<I>)& noexcept
+  { return rest.get(in_place_index_t<I-1>{}); }
 
-  template<std::size_t Np>
+  template<std::size_t I>
   constexpr
-  typename variadic_element<(Np-1), Rest...>::type const& // causes SFINAE
-  get(in_place_index_t<Np>) const& noexcept
-  { return rest.get(in_place_index_t<Np-1>{}); }
+  T<I> const& // SFINAEd out if I >= sizeof...(Types)
+  get(in_place_index_t<I>) const& noexcept
+  { return rest.get(in_place_index_t<I-1>{}); }
 
-  template<std::size_t Np>
+  template<std::size_t I>
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
   constexpr
 #endif
-  typename variadic_element<(Np-1), Rest...>::type volatile& // causes SFINAE
-  get(in_place_index_t<Np>) volatile& noexcept
-  { return rest.get(in_place_index_t<Np-1>{}); }
+  T<I> volatile& // SFINAEd out if I >= sizeof...(Types)
+  get(in_place_index_t<I>) volatile& noexcept
+  { return rest.get(in_place_index_t<I-1>{}); }
 
-  template<std::size_t Np>
+  template<std::size_t I>
   constexpr
-  typename variadic_element<(Np-1), Rest...>::type const volatile& // causes SFINAE
-  get(in_place_index_t<Np>) const volatile& noexcept
-  { return rest.get(in_place_index_t<Np-1>{}); }
+  T<I> const volatile& // SFINAEd out if I >= sizeof...(Types)
+  get(in_place_index_t<I>) const volatile& noexcept
+  { return rest.get(in_place_index_t<I-1>{}); }
 
-  template<std::size_t Np>
+  template<std::size_t I>
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
   constexpr
 #endif
-  typename variadic_element<(Np-1), Rest...>::type&& // causes SFINAE
-  get(in_place_index_t<Np>)&& noexcept
-  { return std::move(rest).get(in_place_index_t<Np-1>{}); }
+  T<I>&& // SFINAEd out if I >= sizeof...(Types)
+  get(in_place_index_t<I>)&& noexcept
+  { return std::move(rest).get(in_place_index_t<I-1>{}); }
 
 #ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
-  template<std::size_t Np>
+  template<std::size_t I>
   constexpr
-  typename variadic_element<(Np-1), Rest...>::type const&& // causes SFINAE
-  get(in_place_index_t<Np>) const&& noexcept
-  { return std::move(rest).get(in_place_index_t<Np-1>{}); }
+  T<I> const&& // SFINAEd out if I >= sizeof...(Types)
+  get(in_place_index_t<I>) const&& noexcept
+  { return std::move(rest).get(in_place_index_t<I-1>{}); }
 
-  template<std::size_t Np>
+  template<std::size_t I>
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
   constexpr
 #endif
-  typename variadic_element<(Np-1), Rest...>::type volatile&& // causes SFINAE
-  get(in_place_index_t<Np>) volatile&& noexcept
-  { return std::move(rest).get(in_place_index_t<Np-1>{}); }
+  T<I> volatile&& // SFINAEd out if I >= sizeof...(Types)
+  get(in_place_index_t<I>) volatile&& noexcept
+  { return std::move(rest).get(in_place_index_t<I-1>{}); }
 
-  template<std::size_t Np>
+  template<std::size_t I>
   constexpr
-  typename variadic_element<(Np-1), Rest...>::type const volatile&& // causes SFINAE
-  get(in_place_index_t<Np>) const volatile&& noexcept
-  { return std::move(rest).get(in_place_index_t<Np-1>{}); }
+  T<I> const volatile&& // SFINAEd out if I >= sizeof...(Types)
+  get(in_place_index_t<I>) const volatile&& noexcept
+  { return std::move(rest).get(in_place_index_t<I-1>{}); }
 #endif // YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
 };
 /** \endcond */

@@ -33,7 +33,27 @@ struct variadic_element_impl<I, I, First, Rest...>
 };
 
 /** // doc: variadic_element {{{
- * \todo Write documentation
+ * \brief Return I'th type from variadic list of `Types`
+ *
+ * \tparam I Zero-based index of the type from `Types` to be returned
+ * \tparam Types Types to pick the I'th type from
+ *
+ * \par Synopsis
+ * \code
+ *  template<std::size_t I, typename... Types>
+ *  struct variadic_element
+ *  {
+ *    typedef unspecified type; // undefined if (I >= sizeof...(Types))
+ *  };
+ * \endcode
+ *
+ * \par Description
+ * If `I < sizeof...(Types)`, then
+ * \code
+ *  variadic_element<I, Types...>::type
+ * \endcode
+ * is identical with the `I`-th of `Types...`. Otherwise the nested type `type`
+ * is undefined.
  */ // }}}
 template<std::size_t I, typename... Types>
 struct variadic_element
