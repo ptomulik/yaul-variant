@@ -13,15 +13,12 @@
 #ifndef YAUL_VARIANT_DETAIL_VARIANT_BUFFER_HPP
 #define YAUL_VARIANT_DETAIL_VARIANT_BUFFER_HPP
 
-//#include <yaul/variant/variant_fwd.hpp>
 #include <yaul/variant/detail/static_max.hpp>
 #include <yaul/variant/detail/enable_recursive.hpp>
 #include <yaul/variant/detail/recursive_flag.hpp>
 #include <type_traits>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup group-detail-metafunctions
- * @{ */
 
 template<typename Variant>
 struct variant_buffer_impl;
@@ -82,7 +79,7 @@ struct variant_buffer
  */ // }}}
 template<typename Variant>
 using variant_buffer_t = typename variant_buffer<Variant>::type;
-/** @} */
+
 } } } // end namespace yaul::detail::variant
 
 #endif /* YAUL_VARIANT_DETAIL_VARIANT_BUFFER_HPP */

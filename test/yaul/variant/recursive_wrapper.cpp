@@ -679,7 +679,7 @@ struct test_recursive_wrapper_ctors
     test_lref_volatile_ctor();
     test_lref_cv_ctor();
     test_rref_ctor();
-#ifndef YAUL_VARIANT_NO_RREF_CV_QUALIFIED_MEMBERS
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
     test_rref_const_ctor();
     test_rref_volatile_ctor();
     test_rref_cv_ctor();
@@ -946,7 +946,7 @@ struct test_recursive_wrapper_asgns
     test_lref_volatile_asgn();
     test_lref_cv_asgn();
     test_rref_asgn();
-#ifndef YAUL_VARIANT_NO_RREF_CV_QUALIFIED_MEMBERS
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
     test_rref_const_asgn();
     test_rref_volatile_asgn();
     test_rref_cv_asgn();

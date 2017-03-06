@@ -69,7 +69,7 @@ public: // structors
     recursive_wrapper(recursive_wrapper const volatile& operand);
     //! \brief Copy constructor
     recursive_wrapper(recursive_wrapper&& operand);
-#ifndef YAUL_VARIANT_NO_RREF_CV_QUALIFIED_MEMBERS
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
     //! \brief Copy constructor
     recursive_wrapper(recursive_wrapper const&& operand);
     //! \brief Copy constructor
@@ -160,7 +160,7 @@ public: // modifiers
       return *this;
     }
 
-#ifndef YAUL_VARIANT_NO_RREF_CV_QUALIFIED_MEMBERS
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
     //! \brief Assignment operator
     recursive_wrapper& operator=(recursive_wrapper const&& rhs)
       noexcept(noexcept(std::declval<recursive_wrapper&>().assign( std::move(rhs).get() )))
@@ -226,7 +226,7 @@ public: // modifiers
       return *this;
     }
 
-#ifndef YAUL_VARIANT_NO_RREF_CV_QUALIFIED_MEMBERS
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
     //! \brief Assignment operator
     recursive_wrapper& operator=(T const&& rhs)
       noexcept(noexcept(std::declval<recursive_wrapper&>().assign(std::move( rhs ))))
@@ -273,7 +273,7 @@ public: // queries
 
     //! \brief Returns reference to the wrapped object in `&&` context
     T&& get() && noexcept { return std::move(*p_); }
-#ifndef YAUL_VARIANT_NO_RREF_CV_QUALIFIED_MEMBERS
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
     //! \brief Returns reference to the wrapped object in `const &&` context
     const T&& get() const && noexcept { return std::move(*p_); }
     //! \brief Returns reference to the wrapped object in `volatile &&` context
@@ -377,7 +377,7 @@ recursive_wrapper<T>::recursive_wrapper(recursive_wrapper&& operand)
 {
 }
 
-#ifndef YAUL_VARIANT_NO_RREF_CV_QUALIFIED_MEMBERS
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
 template< typename T>
 recursive_wrapper<T>::recursive_wrapper(recursive_wrapper const&& operand)
   : p_(new T( std::move(operand).get() ))

@@ -20,8 +20,6 @@
 #include <type_traits>
 
 namespace yaul { namespace detail { namespace variant {
-/** \ingroup group-detail-metafunctions
- * @{ */
 
 /** // doc: enable_recursive {{{
  * \brief Attempts \ref yaul::recursive_variant_tag "recursive_variant_tag" 
@@ -104,7 +102,7 @@ template< typename T, typename RecursiveVariant >
     >::type type;
   };
 /** \endcond */
-/** @} */
+
 } } } // end yaul::detail::variant
 
 #endif /* YAUL_VARIANT_DETAIL_ENABLE_RECURSIVE_HPP */
