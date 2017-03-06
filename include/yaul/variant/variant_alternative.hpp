@@ -73,19 +73,19 @@ template< std::size_t I, typename T >
 } // end namespace yaul
 
 #include <yaul/variant/variant_fwd.hpp>
+#include <yaul/variant/detail/variadic_element.hpp>
 
 namespace yaul {
 
 /** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
-template< std::size_t I, typename T0, typename... Others >
-  struct variant_alternative<I, variant<T0,Others...> >
-    : variant_alternative<I-1, variant<Others...> >
+template<std::size_t I, template<typename...> class V, typename T0, typename... Others>
+  struct variant_alternative<I, V<T0,Others...> >
+    : std::conditional <
+          detail::variant::is_variant_template<V>::value
+        , detail::variant::variadic_element<I, T0, Others...>
+        , detail::variant::not_a_variant< V<T0,Others...> > // has no nested `type`
+      >::type
   { };
-template< typename T0, typename... Others >
-  struct variant_alternative<0ul, variant<T0,Others...> >
-  {
-    typedef T0 type;
-  };
 /** \endcond */
 
 } // end namespace variant

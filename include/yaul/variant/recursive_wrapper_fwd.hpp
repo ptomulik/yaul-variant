@@ -68,12 +68,10 @@ namespace yaul { namespace detail { namespace variant {
  *
  * \par Synopsis
  * \code
- * template< template <typename...> class >
- * struct is_recursive_wrapper_template
- *   {
- *     typedef std::integral_constant<bool, unspecified> type;
- *     constexpr static bool value = unspecified;
- *   };
+ *  template< template <typename...> class >
+ *  struct is_recursive_wrapper_template
+ *    : std::integral_constant<bool, unspecified> 
+ *    { };
  * \endcode
  *
  * \par Description

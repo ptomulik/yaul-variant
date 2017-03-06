@@ -16,7 +16,6 @@
 #include <yaul/variant/variant_fwd.hpp>
 #include <yaul/variant/detail/variant_base_fwd.hpp>
 #include <yaul/variant/detail/all_trivially_destructible.hpp>
-#include <yaul/variant/detail/variant_buffer.hpp>
 #include <yaul/variant/detail/variant_index.hpp>
 #include <yaul/variant/detail/in_place_tags.hpp>
 //#include <yaul/variant/detail/storage_ctor.hpp>
@@ -43,7 +42,6 @@ template< typename Variant, bool TrivialDtor = all_trivially_destructible<Varian
   {
   private:
 
-    using Buffer = variant_buffer_t<Variant>;
     using index_t = variant_index_t<Variant>;
     //using StorageCtor = make_storage_ctor_t<Buffer, Variant>;
     //using StorageDtor = make_storage_dtor_t<Buffer, Variant>;

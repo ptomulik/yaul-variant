@@ -10,6 +10,7 @@
 using yaul::variant_alternative;
 using yaul::variant_alternative_t;
 using yaul::variant;
+using yaul::detail::variant::not_a_variant;
 using std::is_same;
 
 // variant_alternative
@@ -29,6 +30,21 @@ static_assert(is_same<variant_alternative_t<0ul,volatile variant<int,char> >, vo
 static_assert(is_same<variant_alternative_t<1ul,volatile variant<int,char> >, volatile char>::value, "");
 static_assert(is_same<variant_alternative_t<0ul,const volatile variant<int,char> >, const volatile int>::value, "");
 static_assert(is_same<variant_alternative_t<1ul,const volatile variant<int,char> >, const volatile char>::value, "");
+
+template<typename...> struct V1;
+template<typename...> struct V2;
+
+namespace yaul { namespace detail { namespace variant {
+template<>
+  struct is_variant_template<V1>
+    : std::integral_constant<bool, true>
+  { };
+} } } // end namespace yaul::detail::variant
+
+static_assert(is_same<variant_alternative_t<0ul, V1<int,char> >, int>::value, "");
+static_assert(is_same<variant_alternative_t<1ul, V1<int,char> >, char>::value, "");
+
+static_assert(std::is_base_of<not_a_variant< V2<int,char> >, variant_alternative<0ul, V2<int,char> > >::value, "");
 
 int main()
 {

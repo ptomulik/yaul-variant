@@ -44,10 +44,6 @@ namespace yaul {
 template <typename Variant>
   struct variant_size;
 /** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
-template <typename T0, typename... Others>
-  struct variant_size<variant<T0, Others...> >
-    : std::integral_constant<std::size_t, 1ul + sizeof...(Others)>
-  { };
 template <typename T>
   struct variant_size<T const>
     : variant_size<T>
@@ -59,6 +55,20 @@ template <typename T>
 template <typename T>
   struct variant_size<T const volatile>
     : variant_size<T>
+  { };
+#if 0
+template <typename T0, typename... Others>
+  struct variant_size<variant<T0, Others...> >
+    : std::integral_constant<std::size_t, 1ul + sizeof...(Others)>
+  { };
+#endif
+template <template <typename...> class V, typename T0, typename... Others>
+  struct variant_size< V<T0, Others...> >
+    : std::conditional<
+          detail::variant::is_variant_template<V>::value
+        , std::integral_constant<std::size_t, 1ul + sizeof...(Others)>
+        , detail::variant::not_a_variant< V<T0,Others...> >
+      >::type
   { };
 /** \endcond */
 
