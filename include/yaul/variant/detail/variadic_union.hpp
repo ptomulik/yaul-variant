@@ -77,6 +77,10 @@ namespace yaul { namespace detail { namespace variant {
  *    template<std::size_t I>
  *    constexpr T<I> const volatile&&
  *    get(in_place_index_t<I>) const volatile&& noexcept;
+ *
+ *    template<std::size_t I>
+ *    constexpr void
+ *    destruct(in_place_index_t<I>);    // (3)
  *  };
  * \endcode
  *
@@ -86,6 +90,9 @@ namespace yaul { namespace detail { namespace variant {
  * (2) If the underlying constructor call `T<I>(std::forward<Args>(args)...)`
  *     is `noexcept` then `variadic_union(in_place_index_t<I>{}, args...)` is
  *     also `noexcept`.
+ *
+ * (3) If `T<I>` is not trivially destructible, then `destruct(in_place_index<I>)`
+ *     invokes `T<I>::~T<I>()`. Otherwise, the function is empty.
  *
  * \par Description
  * \ref yaul::detail::variant::variadic_union "Variadic_union" supports value
@@ -99,8 +106,10 @@ template<typename First, typename... Rest>
 union variadic_union<First, Rest...>
 {
 private:
-  variadic_union_member<First> first;
-  variadic_union<Rest...> rest;
+  using FirstT  = variadic_union_member<First>;
+  using RestT = variadic_union<Rest...>;
+  FirstT first;
+  RestT rest;
 
 // FIXME: Is it necessary? I found it in gcc libstdc++ implementation.
 //  constexpr variadic_union()
@@ -114,13 +123,13 @@ private:
 public:
   template<typename... Args>
   constexpr variadic_union(in_place_index_t<0ul>, Args&&... args)
-    noexcept(noexcept(variadic_union_member<First>(in_place_index_t<0ul>{}, std::forward<Args>(args)...)))
+    noexcept(noexcept(FirstT(in_place_index_t<0ul>{}, std::forward<Args>(args)...)))
     : first(in_place_index_t<0ul>{}, std::forward<Args>(args)...)
   { }
 
   template<std::size_t I, typename... Args>
   constexpr variadic_union(in_place_index_t<I>, Args&&... args)
-    noexcept(noexcept(variadic_union<Rest...>(in_place_index_t<I-1>{}, std::forward<Args>(args)...)))
+    noexcept(noexcept(RestT(in_place_index_t<I-1>{}, std::forward<Args>(args)...)))
     : rest(in_place_index_t<I-1>{}, std::forward<Args>(args)...)
   { }
 
@@ -223,6 +232,34 @@ public:
   get(in_place_index_t<I>) const volatile&& noexcept
   { return std::move(rest).get(in_place_index_t<I-1>{}); }
 #endif // YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+
+  template<typename U = First>
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
+  constexpr
+#endif
+  typename std::enable_if<!std::is_trivially_destructible<U>::value>::type
+  destruct(in_place_index_t<0ul>)
+    noexcept(noexcept(std::declval<variadic_union_member<U>&>().destruct()))
+  { first.destruct(); }
+
+  template<typename U = First>
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS) && \
+    !defined(YAUL_VARIANT_NO_CONSTEXPR_VOID)
+  constexpr
+#endif
+  typename std::enable_if<std::is_trivially_destructible<U>::value>::type
+  destruct(in_place_index_t<0ul>)
+    noexcept
+  { }
+
+  template<std::size_t I>
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS) && \
+    !defined(YAUL_VARIANT_NO_CONSTEXPR_VOID)
+  constexpr
+#endif
+  void destruct(in_place_index_t<I>)
+    noexcept(noexcept(std::declval<RestT&>().destruct(in_place_index_t<I-1>{})))
+  { rest.destruct(in_place_index_t<I-1>{}); }
 };
 /** \endcond */
 

@@ -43,11 +43,12 @@ namespace yaul { namespace detail { namespace variant {
  *    constexpr T volatile&& get() volatile&& noexcept;
  *    constexpr T const volatile&& get() const volatile&& noexcept;
  *
- *    void destruct(); // (1)
+ *    constexpr void destruct(); // (1)
  *  };
  * \endcode
  *
- * (1) Is `noexcept` whenever T::~T() is noexcept.
+ * (1) is defined only when `T` is not trivially destructible. The function is
+ * `noexcept` whenever `T::~T()` is `noexcept`.
  *
  * \par Description
  * Any valid instantiation of this class is trivially destructible, even

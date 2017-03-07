@@ -62,7 +62,9 @@ struct S1
 // nontrivially destructible
 struct S2
 {
-  ~S2() {}
+  static int count;
+  ~S2() { --count; }
+  S2() { ++count; }
 
   qual_t qual()& noexcept { return q_lr; }
   qual_t qual() const& noexcept { return q_lr_c; }
@@ -75,6 +77,8 @@ struct S2
   qual_t qual() const volatile&& noexcept { return q_rr_cv; }
 #endif
 };
+
+int S2::count = 0;
 
 // trivially destructible but has some non-constexpr c-tors
 struct S3
