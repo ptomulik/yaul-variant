@@ -235,14 +235,21 @@ void test__variadic_union__01()
 void test__variadic_union__02()
 {
   {
+    int const count = S2::count;
     variadic_union<S1, S2> u(_0);
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count);
     YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr);
     u.get(_1) = S2{};
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count);
     YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr);
   }
   {
+    int const count = S2::count;
     variadic_union<S1, S2> u(_1);
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count + 1);
     YAUL_VARIANT_CHECK(u.get(_1).qual() == q_lr);
+    u.destruct(_1);
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count);
     u.get(_0) = S1{};
     YAUL_VARIANT_CHECK(u.get(_0).qual() == q_lr);
   }
