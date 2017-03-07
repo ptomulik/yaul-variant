@@ -88,7 +88,9 @@ static_assert( std::move(m_s1_rc).get().qual() == q_lr_c, "");
 // nontrivially destructible
 struct S2
 {
-  ~S2() {}
+  static int count;
+   S2() noexcept { ++ count; }
+  ~S2() noexcept { -- count; }
 
   qual_t qual()& noexcept { return q_lr; }
   qual_t qual() const& noexcept { return q_lr_c; }
@@ -101,10 +103,21 @@ struct S2
   qual_t qual() const volatile&& noexcept { return q_rr_cv; }
 #endif
 };
+int S2::count = 0;
+
 using M_S2 = variadic_union_member<S2>;
 static_assert( std::is_trivially_destructible< M_S2 >::value, "");
 static_assert(!std::is_default_constructible< M_S2 >::value, "");
 static_assert( std::is_constructible< M_S2, in_place_index_t<0ul> >::value, "");
+
+struct U_S2
+{
+   M_S2 m;
+   U_S2() noexcept : m(_0) { }
+  ~U_S2() noexcept { m.destruct(); }
+};
+
+
 
 // trivially destructible but has some non-constexpr c-tors
 struct S3
@@ -207,6 +220,60 @@ void test__variadic_union_member__with_S2()
     M_S2 const volatile m{_0};
     YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_cv);
   }
+#endif
+  //
+  // Test with U_S2 (wrapper around M_S2)
+  //
+  int const count = S2::count;
+  {
+    U_S2 u;
+    YAUL_VARIANT_CHECK(u.m.get().qual() == q_lr);
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count+1); // ctor invoked
+  }
+  YAUL_VARIANT_CHECK_EQUALS(S2::count, count); // dtor invoked
+  {
+    U_S2 const u;
+    YAUL_VARIANT_CHECK(u.m.get().qual() == q_lr_c);
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count+1); // ctor invoked
+  }
+  YAUL_VARIANT_CHECK_EQUALS(S2::count, count); // dtor invoked
+  {
+    U_S2 volatile u;
+    YAUL_VARIANT_CHECK(u.m.get().qual() == q_lr_v);
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count+1); // ctor invoked
+  }
+  YAUL_VARIANT_CHECK_EQUALS(S2::count, count); // dtor invoked
+  {
+    U_S2 const volatile u;
+    YAUL_VARIANT_CHECK(u.m.get().qual() == q_lr_cv);
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count+1); // ctor invoked
+  }
+  YAUL_VARIANT_CHECK_EQUALS(S2::count, count); // dtor invoked
+  {
+    U_S2 u;
+    YAUL_VARIANT_CHECK(std::move(u).m.get().qual() == q_rr);
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count+1); // ctor invoked
+  }
+  YAUL_VARIANT_CHECK_EQUALS(S2::count, count); // dtor invoked
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+  {
+    U_S2 const u;
+    YAUL_VARIANT_CHECK(std::move(u).m.get().qual() == q_rr_c); // ctor invoked
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count+1);
+  }
+  YAUL_VARIANT_CHECK_EQUALS(S2::count, count); // dtor invoked
+  {
+    U_S2 volatile u;
+    YAUL_VARIANT_CHECK(std::move(u).m.get().qual() == q_rr_v); // ctor invoked
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count+1);
+  }
+  YAUL_VARIANT_CHECK_EQUALS(S2::count, count); // dtor invoked
+  {
+    U_S2 const volatile u;
+    YAUL_VARIANT_CHECK(std::move(u).m.get().qual() == q_rr_cv); // ctor invoked
+    YAUL_VARIANT_CHECK_EQUALS(S2::count, count+1);
+  }
+  YAUL_VARIANT_CHECK_EQUALS(S2::count, count); // dtor invoked
 #endif
 }
 

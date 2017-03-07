@@ -88,6 +88,17 @@
  *    </td>
  *  </tr>
  *  <tr>
+ *    <td>`__cplusplus < 201402L`</td>
+ *    <td>`YAUL_VARIANT_NO_CONSTEXPR_VOID`</td>
+ *    <td>void compounds have removed `constexpr` specifier</td>
+ *    <td>Before C++14 a void type could not be considered `constexpr` (this
+ *        especially applied to functions returning void). In Yaul.Variant it
+ *        is decided to remove `constexpr` specifier from all
+ *        possibly-constexpr void functions whenever it would cause compile
+ *        error.
+ *    </td>
+ *  </tr>
+ *  <tr>
  *    <td>gcc < 8 or clang < 3.6.1</td>
  *    <td>`YAUL_VARIANT_NO_CONSTEXPR_ON_FUNCTIONS_IN_NONLITERAL_CLASS`</td>
  *    <td>`constexpr` specifier is removed from all member functions of non-literal class</td>

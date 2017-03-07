@@ -59,6 +59,13 @@
 #endif
 
 //
+// constexpr void
+//
+#if __cplusplus < 201402L
+# define YAUL_VARIANT_NO_CONSTEXPR_VOID 1
+#endif
+
+//
 // constexpr functions enclosed in non-literal classes
 //
 #ifdef YAUL_VARIANT_CWG_DEFECT_1684

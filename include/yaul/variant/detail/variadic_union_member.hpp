@@ -42,8 +42,12 @@ namespace yaul { namespace detail { namespace variant {
  *    constexpr T const&& get() const&& noexcept;
  *    constexpr T volatile&& get() volatile&& noexcept;
  *    constexpr T const volatile&& get() const volatile&& noexcept;
+ *
+ *    void destruct(); // (1)
  *  };
  * \endcode
+ *
+ * (1) Is `noexcept` whenever T::~T() is noexcept.
  *
  * \par Description
  * Any valid instantiation of this class is trivially destructible, even
@@ -121,6 +125,7 @@ struct variadic_union_member<T, false>
   constexpr
 #endif
   variadic_union_member(in_place_index_t<0ul>, Args&&... args)
+    noexcept(noexcept(T(std::forward<Args>(args)...)))
   { ::new (&storage_) T(std::forward<Args>(args)...); }
 
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
@@ -164,6 +169,12 @@ struct variadic_union_member<T, false>
   const volatile T&& get() const volatile&& noexcept
   { return std::move(*get_ptr()); }
 #endif // YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_VOID)
+  constexpr
+#endif
+  void destruct() noexcept(noexcept(std::declval<T&>().~T()))
+  { get().~T(); }
 
 private:
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
