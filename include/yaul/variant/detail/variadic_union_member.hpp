@@ -43,7 +43,7 @@ namespace yaul { namespace detail { namespace variant {
  *    constexpr T volatile&& get() volatile&& noexcept;
  *    constexpr T const volatile&& get() const volatile&& noexcept;
  *
- *    constexpr void destruct(); // (1)
+ *    constexpr void destruct() const; // (1)
  *  };
  * \endcode
  *
@@ -174,7 +174,8 @@ struct variadic_union_member<T, false>
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_VOID)
   constexpr
 #endif
-  void destruct() noexcept(noexcept(std::declval<T&>().~T()))
+  void destruct() const
+    noexcept(noexcept(std::declval<T&>().~T()))
   { get().~T(); }
 
 private:

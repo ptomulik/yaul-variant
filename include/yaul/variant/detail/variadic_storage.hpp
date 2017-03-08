@@ -19,6 +19,15 @@
 #include <yaul/variant/detail/index_sequence.hpp>
 #include <yaul/variant/detail/in_place_tags.hpp>
 #include <cstddef>
+#include <array>
+
+namespace yaul {
+/** // doc: variant_npos {{{
+  * \brief Returned by \ref yaul::variant::index() when
+  *        valueless_by_exception() is `true`.
+  */ // }}}
+constexpr std::size_t variant_npos = -1;
+}
 
 namespace yaul { namespace detail { namespace variant {
 
@@ -26,74 +35,93 @@ template<typename Union, std::size_t I>
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_VOID)
 constexpr
 #endif
-void variadic_union_dtor(Union&& u)
+void variadic_union_dtor(Union&& u) // noexcept? ignore it?
 { std::forward<Union>(u).destruct(in_place_index_t<I>{}); }
 
-template<bool TrivialDtor, typename... Types>
+template<typename Union, std::size_t... Indices>
+struct variadic_storage_vtable
+{
+  static constexpr void (*dtors[])(Union const&) =
+    { &variadic_union_dtor<Union const&, Indices>... };
+};
+
+template<typename Union, std::size_t... Indices>
+constexpr void (*variadic_storage_vtable<Union,Indices...>::dtors[])(Union const&);
+
+template<bool TriviallyDestructible, typename... Types>
 struct variadic_storage_impl
 {
 private:
   using Union = variadic_union<Types...>;
   using Index = variadic_index_t<Types...>;
 
-  template<std::size_t... Indices>
-    struct dtors
-    {
-      static constexpr void (*vtab[])(Union const&) =
-        { &variadic_union_dtor<Union const&, Indices>... };
-    };
-
-
-  template<size_t... Indices>
-  constexpr
-  void reset_impl(index_sequence<Indices...>)
-  {
-    // some guard here... for index_ being out of range
-    dtors<Indices...>::vtab[index_](union_);
-  }
-
 public:
-#if 0
+
   typedef Index index_type;
+  typedef Union union_type;
 
   template<std::size_t I, typename... Args>
   constexpr
-  variadic_storage(in_place_index<I>, Args&&... args)
-    noexcept(noexcept(union_(in_place_index<I>{}, std::forward<Args>(args)...)))
-    : index_(I), union_(in_place_index<I>{}, std::forward<Args>(args)...)
+  variadic_storage_impl(in_place_index_t<I>, Args&&... args)
+    noexcept(noexcept(Union(in_place_index_t<I>{}, std::forward<Args>(args)...)))
+    : union_(in_place_index_t<I>{}, std::forward<Args>(args)...), index_(I)
   { }
-#endif
 
+  constexpr index_type
+  index() const noexcept
+  { return index_; }
 
-  void reset() // noexcept?
-  {
-    reset_impl(make_index_sequence<sizeof...(Types)>{});
-    // index_ = ... set out of range
-  }
-
-private:
-  Index index_;
+protected:
   Union union_;
+  Index index_;
 };
 
-#if 0
 template<typename... Types>
 struct variadic_storage_impl<false, Types...>
-  : variadic_storage_impl<true,Types...>
+  : variadic_storage_impl<true, Types...>
 {
-  //~variadic_storage_impl()
-  //{
-  //}
-};
+private:
+  using Base = variadic_storage_impl<true, Types...>;
+  using Union = typename Base::union_type;
+  using Index = typename Base::index_type;
+
+  template<size_t... Indices>
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_VOID)
+  constexpr
 #endif
+  void reset_impl(index_sequence<Indices...>) const
+  {
+    // some guard here... for index_ being out of range
+    variadic_storage_vtable<Union, Indices...>::dtors[this->index_](this->union_);
+  }
+
+public:
+  using Base::Base;
+
+  void reset() // noexcept (any)?
+  {
+    reset_impl(typename make_index_sequence<sizeof...(Types)>::type{});
+    this->index_ = static_cast<Index>(::yaul::variant_npos);
+  }
+
+  ~variadic_storage_impl() // noexcept?
+  { reset(); }
+};
 
 /** // doc: variadic_storage {{{
  * \todo Write documentation
  */ // }}}
 template<typename... Types>
 struct variadic_storage
-  : variadic_storage_impl<all_trivially_destructible<Types...>::value, Types...>
+  : variadic_storage_impl<
+      all_trivially_destructible<Types...>::value
+    , Types...
+    >
 {
+private:
+  using Base = variadic_storage_impl<all_trivially_destructible<Types...>::value, Types...>;
+public:
+  using Base::Base;
 };
 
 } } } // end namespace yaul::detail::variant

@@ -238,7 +238,7 @@ public:
   constexpr
 #endif
   typename std::enable_if<!std::is_trivially_destructible<U>::value>::type
-  destruct(in_place_index_t<0ul>)
+  destruct(in_place_index_t<0ul>) const
     noexcept(noexcept(std::declval<variadic_union_member<U>&>().destruct()))
   { first.destruct(); }
 
@@ -248,7 +248,7 @@ public:
   constexpr
 #endif
   typename std::enable_if<std::is_trivially_destructible<U>::value>::type
-  destruct(in_place_index_t<0ul>)
+  destruct(in_place_index_t<0ul>) const
     noexcept
   { }
 
@@ -257,7 +257,7 @@ public:
     !defined(YAUL_VARIANT_NO_CONSTEXPR_VOID)
   constexpr
 #endif
-  void destruct(in_place_index_t<I>)
+  void destruct(in_place_index_t<I>) const
     noexcept(noexcept(std::declval<RestT&>().destruct(in_place_index_t<I-1>{})))
   { rest.destruct(in_place_index_t<I-1>{}); }
 };
