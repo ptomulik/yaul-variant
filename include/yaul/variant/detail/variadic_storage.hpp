@@ -91,20 +91,21 @@ private:
 #endif
   void reset_impl(index_sequence<Indices...>) const
   {
-    // some guard here... for index_ being out of range
-    variadic_storage_vtable<Union, Indices...>::dtors[this->index_](this->union_);
+    if(this->index_ != Index(::yaul::variant_npos))
+      variadic_storage_vtable<Union, Indices...>::dtors[this->index_](this->union_);
   }
 
 public:
   using Base::Base;
 
-  void reset() // noexcept (any)?
+  void reset() // noexcept(if all dtors are noexcept)?
   {
     reset_impl(typename make_index_sequence<sizeof...(Types)>::type{});
-    this->index_ = static_cast<Index>(::yaul::variant_npos);
+    this->index_ = Index(::yaul::variant_npos);
   }
 
-  ~variadic_storage_impl() // noexcept?
+  ~variadic_storage_impl()
+    noexcept(noexcept(std::declval<variadic_storage_impl&>().reset()))
   { reset(); }
 };
 
