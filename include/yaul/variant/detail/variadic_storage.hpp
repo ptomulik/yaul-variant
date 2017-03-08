@@ -15,12 +15,20 @@
 
 #include <yaul/variant/detail/variadic_union.hpp>
 #include <yaul/variant/detail/variadic_index.hpp>
+#include <yaul/variant/detail/all_trivially_destructible.hpp>
+#include <yaul/variant/detail/index_sequence.hpp>
 #include <yaul/variant/detail/in_place_tags.hpp>
 #include <cstddef>
 
 namespace yaul { namespace detail { namespace variant {
 
-#if 0
+template<typename Union, std::size_t I>
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_VOID)
+constexpr
+#endif
+void variadic_union_dtor(Union&& u)
+{ std::forward<Union>(u).destruct(in_place_index_t<I>{}); }
+
 template<bool TrivialDtor, typename... Types>
 struct variadic_storage_impl
 {
@@ -28,8 +36,24 @@ private:
   using Union = variadic_union<Types...>;
   using Index = variadic_index_t<Types...>;
 
-public:
+  template<std::size_t... Indices>
+    struct dtors
+    {
+      static constexpr void (*vtab[])(Union const&) =
+        { &variadic_union_dtor<Union const&, Indices>... };
+    };
 
+
+  template<size_t... Indices>
+  constexpr
+  void reset_impl(index_sequence<Indices...>)
+  {
+    // some guard here... for index_ being out of range
+    dtors<Indices...>::vtab[index_](union_);
+  }
+
+public:
+#if 0
   typedef Index index_type;
 
   template<std::size_t I, typename... Args>
@@ -38,14 +62,21 @@ public:
     noexcept(noexcept(union_(in_place_index<I>{}, std::forward<Args>(args)...)))
     : index_(I), union_(in_place_index<I>{}, std::forward<Args>(args)...)
   { }
+#endif
 
 
+  void reset() // noexcept?
+  {
+    reset_impl(make_index_sequence<sizeof...(Types)>{});
+    // index_ = ... set out of range
+  }
 
 private:
   Index index_;
   Union union_;
 };
 
+#if 0
 template<typename... Types>
 struct variadic_storage_impl<false, Types...>
   : variadic_storage_impl<true,Types...>
@@ -54,16 +85,17 @@ struct variadic_storage_impl<false, Types...>
   //{
   //}
 };
+#endif
 
 /** // doc: variadic_storage {{{
  * \todo Write documentation
  */ // }}}
 template<typename... Types>
 struct variadic_storage
-  : variadic_storage_impl</* all_trivially_destructible<Types...>::value, Types... */>
+  : variadic_storage_impl<all_trivially_destructible<Types...>::value, Types...>
 {
 };
-#endif
+
 } } } // end namespace yaul::detail::variant
 
 #endif /* YAUL_VARIANT_DETAIL_VARIADIC_STORAGE_HPP */
