@@ -57,9 +57,9 @@ struct is_variant_template
 
 /** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
 template<>
-  struct is_variant_template< ::yaul::variant >
-    : std::integral_constant<bool, true>
-  { };
+struct is_variant_template< ::yaul::variant >
+  : std::integral_constant<bool, true>
+{ };
 /** \endcond */
 
 } } } // end namespace yaul::detail::variant

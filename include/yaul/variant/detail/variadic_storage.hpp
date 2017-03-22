@@ -114,10 +114,7 @@ public:
  */ // }}}
 template<typename... Types>
 struct variadic_storage
-  : variadic_storage_impl<
-      all_trivially_destructible<Types...>::value
-    , Types...
-    >
+  : variadic_storage_impl<all_trivially_destructible<Types...>::value, Types...>
 {
 private:
   using Base = variadic_storage_impl<all_trivially_destructible<Types...>::value, Types...>;
