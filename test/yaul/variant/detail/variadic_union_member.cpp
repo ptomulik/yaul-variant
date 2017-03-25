@@ -18,6 +18,20 @@ static_assert(!std::is_default_constructible< M_int >::value, "");
 static_assert( std::is_constructible< M_int, in_place_index_t<0ul> >::value, "");
 static_assert( std::is_constructible< M_int, in_place_index_t<0ul>, int >::value, "");
 
+// check noexcept-ness of some common expressions with variadic_union_member<int>
+static_assert(noexcept(M_int(in_place_index_t<0>{})), "");
+static_assert(noexcept(M_int(in_place_index_t<0>{},0)), "");
+static_assert(noexcept(std::declval<M_int&>().get()), "");
+static_assert(noexcept(std::declval<M_int const&>().get()), "");
+static_assert(noexcept(std::declval<M_int volatile&>().get()), "");
+static_assert(noexcept(std::declval<M_int const volatile&>().get()), "");
+static_assert(noexcept(std::declval<M_int&&>().get()), "");
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+static_assert(noexcept(std::declval<M_int const&&>().get()), "");
+static_assert(noexcept(std::declval<M_int volatile&&>().get()), "");
+static_assert(noexcept(std::declval<M_int const volatile&&>().get()), "");
+#endif
+
 // check some constant expressions
 constexpr M_int const m_int_c_2{_0, 2};
 static_assert( m_int_c_2.get() == 2, "");
@@ -75,6 +89,23 @@ static_assert( std::is_trivially_destructible< M_S1 >::value, "");
 static_assert(!std::is_default_constructible< M_S1 >::value, "");
 static_assert( std::is_constructible< M_S1, in_place_index_t<0ul> >::value, "");
 
+// check noexcept-ness of some common expressions with variadic_union_member<int>
+static_assert(noexcept(M_S1(in_place_index_t<0>{})), "");
+static_assert(noexcept(M_S1(in_place_index_t<0>{},std::declval<S1&>())), "");
+static_assert(noexcept(M_S1(in_place_index_t<0>{},std::declval<S1 const&>())), "");
+static_assert(noexcept(M_S1(in_place_index_t<0>{},std::declval<S1&&>())), "");
+static_assert(noexcept(M_S1(in_place_index_t<0>{},std::declval<S1 const&&>())), "");
+static_assert(noexcept(std::declval<M_S1&>().get()), "");
+static_assert(noexcept(std::declval<M_S1 const&>().get()), "");
+static_assert(noexcept(std::declval<M_S1 volatile&>().get()), "");
+static_assert(noexcept(std::declval<M_S1 const volatile&>().get()), "");
+static_assert(noexcept(std::declval<M_S1&&>().get()), "");
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+static_assert(noexcept(std::declval<M_S1 const&&>().get()), "");
+static_assert(noexcept(std::declval<M_S1 volatile&&>().get()), "");
+static_assert(noexcept(std::declval<M_S1 const volatile&&>().get()), "");
+#endif
+
 constexpr M_S1 const m_s1_lc{_0};
 static_assert( m_s1_lc.get().qual() == q_lr_c, "");
 
@@ -90,6 +121,7 @@ struct S2
 {
   static int count;
    S2() noexcept { ++ count; }
+   S2(const char*) { ++ count; } // intentionally not-noexcept
   ~S2() noexcept { -- count; }
 
   qual_t qual()& noexcept { return q_lr; }
@@ -109,6 +141,24 @@ using M_S2 = variadic_union_member<S2>;
 static_assert( std::is_trivially_destructible< M_S2 >::value, "");
 static_assert(!std::is_default_constructible< M_S2 >::value, "");
 static_assert( std::is_constructible< M_S2, in_place_index_t<0ul> >::value, "");
+
+// check noexcept-ness of some common expressions with variadic_union_member<int>
+static_assert(noexcept(M_S2(in_place_index_t<0>{})), "");
+static_assert(noexcept(M_S2(in_place_index_t<0>{},std::declval<S2&>())), "");
+static_assert(noexcept(M_S2(in_place_index_t<0>{},std::declval<S2 const&>())), "");
+static_assert(noexcept(M_S2(in_place_index_t<0>{},std::declval<S2&&>())), "");
+static_assert(noexcept(M_S2(in_place_index_t<0>{},std::declval<S2 const&&>())), "");
+static_assert(!noexcept(M_S2(in_place_index_t<0>{}, "throwing")), "");
+static_assert(noexcept(std::declval<M_S2&>().get()), "");
+static_assert(noexcept(std::declval<M_S2 const&>().get()), "");
+static_assert(noexcept(std::declval<M_S2 volatile&>().get()), "");
+static_assert(noexcept(std::declval<M_S2 const volatile&>().get()), "");
+static_assert(noexcept(std::declval<M_S2&&>().get()), "");
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+static_assert(noexcept(std::declval<M_S2 const&&>().get()), "");
+static_assert(noexcept(std::declval<M_S2 volatile&&>().get()), "");
+static_assert(noexcept(std::declval<M_S2 const volatile&&>().get()), "");
+#endif
 
 struct U_S2
 {
