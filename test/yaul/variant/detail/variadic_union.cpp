@@ -7,6 +7,7 @@
 #include <yaul/variant/detail/variadic_union.hpp>
 #include <yaul/variant/test_config.hpp>
 #include <type_traits>
+#include <utility>
 
 using yaul::detail::variant::variadic_union;
 using yaul::detail::variant::in_place_index_t;
@@ -63,8 +64,9 @@ struct S1
 struct S2
 {
   static int count;
-  ~S2() { --count; }
-  S2() { ++count; }
+  ~S2() noexcept { --count; }
+  S2() noexcept { ++count; }
+  S2(const char*) { ++count; }   // intentionally non-noexcept
 
   qual_t qual()& noexcept { return q_lr; }
   qual_t qual() const& noexcept { return q_lr_c; }
@@ -98,6 +100,13 @@ struct S3
   qual_t qual() const volatile&& noexcept { return q_rr_cv; }
 #endif
 };
+
+// has non-constexpr d-tor
+struct S4
+{
+  ~S4() noexcept(false) {}
+};
+
 static_assert(!std::is_literal_type<S3>::value, "");
 static_assert( std::is_trivially_destructible<S3>::value, "");
 
@@ -106,6 +115,85 @@ using U_ic = variadic_union<int,char>;
 static_assert(!std::is_default_constructible<U_i>::value, "");
 static_assert( std::is_constructible<U_i, in_place_index_t<0ul> >::value, "");
 static_assert( std::is_constructible<U_i, in_place_index_t<0ul>, int>::value, "");
+
+// check noexcept-ness of certain expressions on U_i
+static_assert(noexcept(U_i(_0)),"");
+static_assert(noexcept(U_i(_0,1)),"");
+static_assert(noexcept(std::declval<U_i&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_i const&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_i volatile&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_i const volatile&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_i&&>().get(_0)),"");
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+static_assert(noexcept(std::declval<U_i const&&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_i volatile&&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_i const volatile&&>().get(_0)),"");
+#endif
+static_assert(noexcept(std::declval<U_i&>().destruct(_0)),"");
+static_assert(noexcept(std::declval<U_i const&>().destruct(_0)),"");
+//static_assert(noexcept(std::declval<U_i volatile&>().destruct(_0)),""); // FIXME: shouldn't it work?
+//static_assert(noexcept(std::declval<U_i const volatile&>().destruct(_0)),""); // FIXME: shouldn't it work?
+static_assert(noexcept(std::declval<U_i&&>().destruct(_0)),"");
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+static_assert(noexcept(std::declval<U_i const&&>().destruct(_0)),"");
+//static_assert(noexcept(std::declval<U_i volatile&&>().destruct(_0)),""); // FIXME: shouldn't it work?
+//static_assert(noexcept(std::declval<U_i const volatile&&>().destruct(_0)),""); // FIXME: shouldn't it work?
+#endif
+static_assert(noexcept(std::declval<U_i&>().~U_i()),"");
+
+// check noexcept-ness of certain expressions on U_ic
+static_assert(noexcept(U_ic(_0)),"");
+static_assert(noexcept(U_ic(_0,1)),"");
+static_assert(noexcept(U_ic(_1,'a')),"");
+static_assert(noexcept(std::declval<U_ic&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_ic&>().get(_1)),"");
+static_assert(noexcept(std::declval<U_ic const&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_ic const&>().get(_1)),"");
+static_assert(noexcept(std::declval<U_ic volatile&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_ic volatile&>().get(_1)),"");
+static_assert(noexcept(std::declval<U_ic const volatile&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_ic const volatile&>().get(_1)),"");
+static_assert(noexcept(std::declval<U_ic&&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_ic&&>().get(_1)),"");
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+static_assert(noexcept(std::declval<U_ic const&&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_ic const&&>().get(_1)),"");
+static_assert(noexcept(std::declval<U_ic volatile&&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_ic volatile&&>().get(_1)),"");
+static_assert(noexcept(std::declval<U_ic const volatile&&>().get(_0)),"");
+static_assert(noexcept(std::declval<U_ic const volatile&&>().get(_1)),"");
+#endif
+static_assert(noexcept(std::declval<U_ic&>().~U_ic()),"");
+
+// check noexcept-ness of certain expressions on variadic_union<int, S2>
+static_assert(noexcept(variadic_union<int, S2>(_0)),"");
+static_assert(noexcept(variadic_union<int, S2>(_0,1)),"");
+static_assert(noexcept(variadic_union<int, S2>(_1)),"");
+static_assert(!noexcept(variadic_union<int, S2>(_1,"a")),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2>&>().get(_0)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2>&>().get(_1)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> const&>().get(_0)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> const&>().get(_1)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> volatile&>().get(_0)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> volatile&>().get(_1)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> const volatile&>().get(_0)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> const volatile&>().get(_1)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2>&&>().get(_0)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2>&&>().get(_1)),"");
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+static_assert(noexcept(std::declval<variadic_union<int, S2> const&&>().get(_0)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> const&&>().get(_1)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> volatile&&>().get(_0)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> volatile&&>().get(_1)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> const volatile&&>().get(_0)),"");
+static_assert(noexcept(std::declval<variadic_union<int, S2> const volatile&&>().get(_1)),"");
+#endif
+static_assert(noexcept(std::declval<variadic_union<int, S2>&>().~variadic_union()),"");
+
+// check noexcept-ness of certain expressions on variadic_union<int, S4>
+static_assert( noexcept(std::declval<variadic_union<int,S4>&>().~variadic_union()), ""); // variadic_union has always trivial d-tor
+static_assert( noexcept(std::declval<variadic_union<int,S4>&>().destruct(_0)), "");
+static_assert(!noexcept(std::declval<variadic_union<int,S4>&>().destruct(_1)), "");
 
 constexpr U_i const u_i_c_02{_0, 2};
 constexpr U_ic const u_ic_c_02{_0, 2};

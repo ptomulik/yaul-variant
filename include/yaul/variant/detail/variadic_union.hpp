@@ -92,7 +92,9 @@ namespace yaul { namespace detail { namespace variant {
  *     also `noexcept`.
  *
  * (3) If `T<I>` is not trivially destructible, then `destruct(in_place_index<I>)`
- *     invokes `T<I>::~T<I>()`. Otherwise, the function is empty.
+ *     invokes <tt>T<I>::~T<I>()</tt>. Otherwise, the function is empty. The
+ *     expression `destruct(in_place_index<I>)` is noexcept if and only if
+ *     `T<I>` is trivially destructible or <tt>T<I>::~T<I>()</tt> is noexcept.
  *
  * \par Description
  * \ref yaul::detail::variant::variadic_union "Variadic_union" supports value

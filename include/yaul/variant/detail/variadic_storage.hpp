@@ -15,9 +15,10 @@
 
 #include <yaul/variant/detail/variadic_union.hpp>
 #include <yaul/variant/detail/variadic_index.hpp>
-#include <yaul/variant/detail/all_trivially_destructible.hpp>
 #include <yaul/variant/detail/index_sequence.hpp>
 #include <yaul/variant/detail/in_place_tags.hpp>
+#include <yaul/variant/detail/all.hpp>
+#include <type_traits>
 #include <cstddef>
 #include <array>
 
@@ -31,18 +32,19 @@ constexpr std::size_t variant_npos = -1;
 
 namespace yaul { namespace detail { namespace variant {
 
-template<typename Union, std::size_t I>
+template<std::size_t I, typename Union>
 #if !defined(YAUL_VARIANT_NO_CONSTEXPR_VOID)
 constexpr
 #endif
-void variadic_union_dtor(Union&& u) // noexcept? ignore it?
+void variadic_union_destruct(Union&& u)
+  noexcept(noexcept(std::forward<Union>(u).destruct(in_place_index_t<I>{})))
 { std::forward<Union>(u).destruct(in_place_index_t<I>{}); }
 
 template<typename Union, std::size_t... Indices>
 struct variadic_storage_vtable
 {
   static constexpr void (*dtors[])(Union const&) =
-    { &variadic_union_dtor<Union const&, Indices>... };
+    { &variadic_union_destruct<Indices, Union const&>... };
 };
 
 template<typename Union, std::size_t... Indices>
@@ -90,6 +92,7 @@ private:
   constexpr
 #endif
   void reset_impl(index_sequence<Indices...>) const
+    noexcept(all<noexcept(variadic_union_destruct<Indices>(std::declval<Union const&>()))...>::value)
   {
     if(this->index_ != Index(::yaul::variant_npos))
       variadic_storage_vtable<Union, Indices...>::dtors[this->index_](this->union_);
@@ -98,7 +101,11 @@ private:
 public:
   using Base::Base;
 
-  void reset() // noexcept(if all dtors are noexcept)?
+  void reset()
+    noexcept(noexcept(
+          std::declval<variadic_storage_impl&>().
+          reset_impl(typename make_index_sequence<sizeof...(Types)>::type{})
+          ))
   {
     reset_impl(typename make_index_sequence<sizeof...(Types)>::type{});
     this->index_ = Index(::yaul::variant_npos);
@@ -114,10 +121,10 @@ public:
  */ // }}}
 template<typename... Types>
 struct variadic_storage
-  : variadic_storage_impl<all_trivially_destructible<Types...>::value, Types...>
+  : variadic_storage_impl<all<std::is_trivially_destructible<Types>::value...>::value, Types...>
 {
 private:
-  using Base = variadic_storage_impl<all_trivially_destructible<Types...>::value, Types...>;
+  using Base = variadic_storage_impl<all<std::is_trivially_destructible<Types>::value...>::value, Types...>;
 public:
   using Base::Base;
 };

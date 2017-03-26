@@ -7,11 +7,22 @@
 #include <yaul/variant/detail/variadic_storage.hpp>
 #include <yaul/variant/test_config.hpp>
 #include <type_traits>
+#include <utility>
 
 using yaul::detail::variant::variadic_storage;
 using yaul::detail::variant::in_place_index_t;
 
+struct fake_union
+{
+  template<std::size_t I>
+  void destruct(in_place_index_t<I>) noexcept(I == 0)
+  { }
+};
+
 constexpr const in_place_index_t<0ul> _0{};
+
+static_assert( noexcept(yaul::detail::variant::variadic_union_destruct<0ul>(std::declval<fake_union&>())), "");
+static_assert(!noexcept(yaul::detail::variant::variadic_union_destruct<1ul>(std::declval<fake_union&>())), "");
 
 enum qual_t {
   q_lr,     // l-value reference
@@ -63,13 +74,33 @@ static_assert( std::is_trivially_destructible<S_S1>::value, "");
 static_assert(!std::is_default_constructible<S_S1>::value, "");
 static_assert(s_s1.index() == 0, "");
 
+// check noexpress-ness of certain expressions involving variadic_storage<..,S1,...>.
+static_assert( noexcept(std::declval<variadic_storage<S1>&>().~variadic_storage()), "");
+static_assert( noexcept(std::declval<variadic_storage<int,S1>&>().~variadic_storage()), "");
+static_assert( noexcept(std::declval<variadic_storage<int,S1,float>&>().~variadic_storage()), "");
+
 struct S2
 {
   static int count;
-   S2() { ++count; }
-  ~S2() { --count; }
+   S2() noexcept { ++count; }
+  ~S2() noexcept { --count; }
 };
 int S2::count = 0;
+
+// check noexpress-ness of certain expressions involving variadic_storage<..,S2,...>.
+static_assert( noexcept(std::declval<variadic_storage<S2>&>().~variadic_storage()), "");
+static_assert( noexcept(std::declval<variadic_storage<int,S2>&>().~variadic_storage()), "");
+static_assert( noexcept(std::declval<variadic_storage<int,S2,float>&>().~variadic_storage()), "");
+
+struct S3
+{
+  ~S3() noexcept(false) { } // intentionally not-noexcept
+};
+
+// check noexpress-ness of certain expressions involving variadic_storage<..,S3,...>.
+static_assert(!noexcept(std::declval<variadic_storage<S3>&>().~variadic_storage()), "");
+static_assert(!noexcept(std::declval<variadic_storage<int,S3>&>().~variadic_storage()), "");
+static_assert(!noexcept(std::declval<variadic_storage<int,S3,float>&>().~variadic_storage()), "");
 
 void test__variadic_storage__with_S1()
 {

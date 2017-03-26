@@ -6,6 +6,7 @@
 
 #include <yaul/variant/detail/variadic_union_member.hpp>
 #include <yaul/variant/test_config.hpp>
+#include <utility>
 
 using yaul::detail::variant::variadic_union_member;
 using yaul::detail::variant::in_place_index_t;

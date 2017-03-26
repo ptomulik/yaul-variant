@@ -1444,3 +1444,7 @@ tr.heading h2 {
     display:inline;
   }
 }
+
+code {
+  background-color: #efeffe;
+}
