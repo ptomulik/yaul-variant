@@ -32,7 +32,7 @@ class variant_impl
   : public variant_impl<Variant, Np+1>
 {
   using Base = variant_impl<Variant, Np+1>;
-  using Base::Buffer;
+  //using Base::Buffer;
   using T = variant_alternative_t<Np,Variant>; // current type
 
   public:
@@ -44,7 +44,7 @@ class variant_impl<Variant, (variant_size<Variant>::value-1ul)>
   : public variant_base<Variant>
 {
   using Base = variant_base<Variant>;
-  using Buffer = Base::Buffer;
+  //using Buffer = Base::Buffer;
   using T = variant_alternative_t<Np,Variant>; // current type
 
 public:

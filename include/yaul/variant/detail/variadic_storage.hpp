@@ -77,7 +77,7 @@ protected:
   Union union_;
   Index index_;
 };
-
+/** \cond DOXYGEN_SHOW_TEMPLATE_SPECIALIZATIONS */
 template<typename... Types>
 struct variadic_storage_impl<false, Types...>
   : variadic_storage_impl<true, Types...>
@@ -115,6 +115,7 @@ public:
     noexcept(noexcept(std::declval<variadic_storage_impl&>().reset()))
   { reset(); }
 };
+/** \endcond */
 
 /** // doc: variadic_storage {{{
  * \todo Write documentation
