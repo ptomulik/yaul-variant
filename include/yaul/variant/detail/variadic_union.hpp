@@ -108,7 +108,7 @@ template<typename First, typename... Rest>
 union variadic_union<First, Rest...>
 {
 private:
-  using FirstT  = variadic_union_member<First>;
+  using FirstT = variadic_union_member<First>;
   using RestT = variadic_union<Rest...>;
   FirstT first;
   RestT rest;

@@ -79,10 +79,14 @@ static_assert( std::is_trivially_destructible<S_S1>::value, "");
 static_assert(!std::is_default_constructible<S_S1>::value, "");
 static_assert(s_s1.index() == 0, "");
 
-// check noexpress-ness of certain expressions involving make_variadic_storage_t<..,S1,...>.
+// check noexcept-ness of certain expressions involving make_variadic_storage_t<..,S1,...>.
 static_assert( noexcept(std::declval<make_variadic_storage_t<S1>&>().~variadic_storage()), "");
 static_assert( noexcept(std::declval<make_variadic_storage_t<int,S1>&>().~variadic_storage()), "");
 static_assert( noexcept(std::declval<make_variadic_storage_t<int,S1,float>&>().~variadic_storage()), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S1>&>().assign<0ul>(0)), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S1>&>().assign<1ul>(std::declval<S1>())), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S1>&>().emplace<0ul>(0)), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S1>&>().emplace<1ul>(std::declval<S1>())), "");
 
 struct S2
 {
@@ -94,7 +98,7 @@ int S2::count = 0;
 
 static_assert(std::is_same<make_variadic_storage<int,S2>::type, variadic_storage<false,int,S2> >::value, "");
 
-// check noexpress-ness of certain expressions involving make_variadic_storage_t<..,S2,...>.
+// check noexcept-ness of certain expressions involving make_variadic_storage_t<..,S2,...>.
 static_assert( noexcept(std::declval<make_variadic_storage_t<S2>&>().~variadic_storage()), "");
 static_assert( noexcept(std::declval<make_variadic_storage_t<int,S2>&>().~variadic_storage()), "");
 static_assert( noexcept(std::declval<make_variadic_storage_t<int,S2,float>&>().~variadic_storage()), "");
@@ -104,10 +108,33 @@ struct S3
   ~S3() noexcept(false) { } // intentionally not-noexcept
 };
 
-// check noexpress-ness of certain expressions involving make_variadic_storage_t<..,S3,...>.
+// check noexcept-ness of certain expressions involving make_variadic_storage_t<..,S3,...>.
 static_assert(!noexcept(std::declval<make_variadic_storage_t<S3>&>().~variadic_storage()), "");
 static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3>&>().~variadic_storage()), "");
 static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3,float>&>().~variadic_storage()), "");
+// All the following hold because of potentially-throwing d-tor S3::~S3().
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3,float>&>().assign<0ul>(0)), "");
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3,float>&>().assign<1ul>(std::declval<S3 const&>())), "");
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3,float>&>().assign<2ul>(1.2f)), "");
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3,float>&>().emplace<0ul>(0)), "");
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3,float>&>().emplace<1ul>(std::declval<S3 const&>())), "");
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3,float>&>().emplace<2ul>(1.2f)), "");
+
+
+struct S4
+{
+  S4() {}                                     // intentionally not-noexcept
+  S4(S4 const&) {}                            // intentionally not-noexcept
+  S4& operator=(S4 const&) { return *this; }  // intentionally not-noexcept
+};
+
+// check noexcept-ness of certain expressions involving make_variadic_storage_t<..,S4,...>.
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().assign<0ul>(0)), "");
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().assign<1ul>(std::declval<S4 const&>())), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().assign<2ul>(1.2f)), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().emplace<0ul>(0)), "");
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().emplace<1ul>(std::declval<S4 const&>())), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().emplace<2ul>(1.2f)), "");
 
 void test__variadic_storage__with_S1()
 {
@@ -139,9 +166,43 @@ void test__variadic_storage__with_S1S2()
   YAUL_VARIANT_CHECK_EQUALS(S2::count, count);
 }
 
+void test__variadic_storage__assign()
+{
+  {
+    make_variadic_storage_t<int,char> s{_0,0};
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    s.assign<1ul>('a');
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+  }
+  {
+    volatile make_variadic_storage_t<int,char> s{_0,0};
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    s.assign<1ul>('a');
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+  }
+}
+
+void test__variadic_storage__emplace()
+{
+  {
+    make_variadic_storage_t<int,char> s{_0,0};
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    s.emplace<1ul>('a');
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+  }
+  {
+    volatile make_variadic_storage_t<int,char> s{_0,0};
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    s.emplace<1ul>('a');
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+  }
+}
+
 int main()
 {
   test__variadic_storage__with_S1();
   test__variadic_storage__with_S1S2();
+  test__variadic_storage__assign();
+  test__variadic_storage__emplace();
   return YAUL_VARIANT_TEST_EXIT_CODE;
 }
