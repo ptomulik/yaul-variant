@@ -219,7 +219,7 @@ private:
   T const volatile* get_ptr() const volatile noexcept
   { return static_cast<T const volatile*>(get_addr()); }
 
-  std::aligned_storage<sizeof(T), alignof(T)> storage_;
+  typename std::aligned_storage<sizeof(T), alignof(T)>::type storage_;
 };
 /** \endcond */
 

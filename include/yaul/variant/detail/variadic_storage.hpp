@@ -16,6 +16,7 @@
 #define YAUL_VARIANT_DETAIL_VARIADIC_STORAGE_HPP
 
 #include <yaul/variant/detail/variadic_union.hpp>
+#include <yaul/variant/detail/variadic_element.hpp>
 #include <yaul/variant/detail/variadic_index.hpp>
 #include <yaul/variant/detail/index_sequence.hpp>
 #include <yaul/variant/detail/in_place_tags.hpp>
@@ -66,11 +67,22 @@ constexpr void (*variadic_storage_vtable<Union,Indices...>::dtors[])(Union const
  * template<bool TriviallyDestructible, typename... Types>
  *  struct variadic_storage
  *  {
+ *  private:
+ *    template <std::size_t I>
+ *    using T = typename variadic_element<I, Types...>::type;
  *  public:
  *    typedef variadic_index<Types...> index_type;
  *    typedef variadic_union<Types...> union_type;
  *    template<std::size_t I, typename... Args>
  *      constexpr variadic_storage(in_place_index_t<I>, Args&&... args);  // (1)
+ *    template<std::size_t I> constexpr T<I>& get()& noexcept;
+ *    template<std::size_t I> constexpr T<I> const& get() const& noexcept;
+ *    template<std::size_t I> constexpr T<I> volatile& get() volatile& noexcept;
+ *    template<std::size_t I> constexpr T<I> const volatile& get() const volatile& noexcept;
+ *    template<std::size_t I> constexpr T<I>&& get()&& noexcept;
+ *    template<std::size_t I> constexpr T<I> const&& get() const&& noexcept;
+ *    template<std::size_t I> constexpr T<I> volatile&& get() volatile&& noexcept;
+ *    template<std::size_t I> constexpr T<I> const volatile&& get() const volatile&& noexcept;
  *    template<std::size_t I, typename T>
  *      void assign(T&&);
  *    template<std::size_t I, typename... Args>
@@ -100,6 +112,7 @@ struct variadic_storage
 private:
   using Union = variadic_union<Types...>;
   using Index = variadic_index_t<Types...>;
+  template<std::size_t I> using T = typename variadic_element<I, Types...>::type;
 
   // FIXME: constexpr possible?
   void set_index(int i) noexcept
@@ -140,6 +153,52 @@ public:
     : union_(in_place_index_t<I>{}, std::forward<Args>(args)...), index_(I)
   { }
 
+  template<std::size_t I>
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
+  constexpr
+#endif
+  T<I>& get()& noexcept
+  { return union_.get(in_place_index_t<I>{}); }
+
+  template<std::size_t I>
+  constexpr T<I> const& get() const& noexcept
+  { return union_.get(in_place_index_t<I>{}); }
+
+  template<std::size_t I>
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
+  constexpr
+#endif
+  T<I> volatile& get() volatile& noexcept
+  { return union_.get(in_place_index_t<I>{}); }
+
+  template<std::size_t I>
+  constexpr T<I> const volatile& get() const volatile& noexcept
+  { return union_.get(in_place_index_t<I>{}); }
+
+  template<std::size_t I>
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
+  constexpr
+#endif
+  T<I>&& get()&& noexcept
+  { return std::move(union_).get(in_place_index_t<I>{}); }
+
+#ifndef YAUL_VARIANT_NO_RRCV_QUALIFIED_FUNCTIONS
+  template<std::size_t I>
+  constexpr T<I> const&& get() const&& noexcept
+  { return std::move(union_).get(in_place_index_t<I>{}); }
+
+  template<std::size_t I>
+#if !defined(YAUL_VARIANT_NO_CONSTEXPR_ON_NONCONST_FUNCTIONS)
+  constexpr
+#endif
+  T<I> volatile&& get() volatile&& noexcept
+  { return std::move(union_).get(in_place_index_t<I>{}); }
+
+  template<std::size_t I>
+  constexpr T<I> const volatile&& get() const volatile&& noexcept
+  { return std::move(union_).get(in_place_index_t<I>{}); }
+#endif
+
   template <std::size_t I, typename T>
     // FIXME: constexpr possible?
   typename std::enable_if<_is_assign_noexcept<I,T>::value>::type
@@ -170,11 +229,9 @@ public:
     static_assert((I < sizeof...(Types)),
                   "The index should be in [0, number of alternatives)");
     try {
-      // If the following assignment throws, we end-up in
-      // 'valueless_by_exception' state (i.e. index_ == variant_npos).
       union_.get(in_place_index_t<I>{}) = std::forward<T>(v);
     } catch (...) {
-      index_ = Index(::yaul::variant_npos);
+      index_ = Index(::yaul::variant_npos); // valueless_by_exception
       throw;
     }
     index_ = I;

@@ -123,9 +123,18 @@ static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3,float>&>().e
 
 struct S4
 {
-  S4() {}                                     // intentionally not-noexcept
-  S4(S4 const&) {}                            // intentionally not-noexcept
-  S4& operator=(S4 const&) { return *this; }  // intentionally not-noexcept
+  int assigned;
+  int value;
+  S4() : assigned(0) { }                            // intentionally not-noexcept
+  S4(S4 const& r) : assigned(0), value(r.value) { } // intentionally not-noexcept
+  S4(int r) : assigned(0), value(r) { }             // intentionally not-noexcept
+  S4& operator=(S4 const& r)                        // intentionally not-noexcept
+  {
+    value = r.value;
+    ++assigned;
+    return *this;
+  }
+  ~S4() noexcept { }
 };
 
 // check noexcept-ness of certain expressions involving make_variadic_storage_t<..,S4,...>.
@@ -133,7 +142,7 @@ static_assert( noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().a
 static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().assign<1ul>(std::declval<S4 const&>())), "");
 static_assert( noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().assign<2ul>(1.2f)), "");
 static_assert( noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().emplace<0ul>(0)), "");
-static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().emplace<1ul>(std::declval<S4 const&>())), "");
+//static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().emplace<1ul>(std::declval<S4 const&>())), "");
 static_assert( noexcept(std::declval<make_variadic_storage_t<int,S4,float>&>().emplace<2ul>(1.2f)), "");
 
 void test__variadic_storage__with_S1()
@@ -171,14 +180,30 @@ void test__variadic_storage__assign()
   {
     make_variadic_storage_t<int,char> s{_0,0};
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<0ul>(), 0);
     s.assign<1ul>('a');
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<1ul>(), 'a');
   }
   {
     volatile make_variadic_storage_t<int,char> s{_0,0};
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<0ul>(), 0);
     s.assign<1ul>('a');
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<1ul>(), 'a');
+  }
+  {
+    make_variadic_storage_t<int,S4> s{_0,0};
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<0ul>(), 0);
+    s.assign<0ul>(1);
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<0ul>(), 1);
+    s.assign<1ul>(S4{123});
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<1ul>().assigned, 1);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<1ul>().value, 123);
   }
 }
 
@@ -187,14 +212,30 @@ void test__variadic_storage__emplace()
   {
     make_variadic_storage_t<int,char> s{_0,0};
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<0ul>(), 0);
     s.emplace<1ul>('a');
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<1ul>(), 'a');
   }
   {
     volatile make_variadic_storage_t<int,char> s{_0,0};
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<0ul>(), 0);
     s.emplace<1ul>('a');
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<1ul>(), 'a');
+  }
+  {
+    make_variadic_storage_t<int,S4> s{_0,0};
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<0ul>(), 0);
+    s.emplace<0ul>(1);
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<0ul>(), 1);
+    s.emplace<1ul>(S4{123});
+    YAUL_VARIANT_CHECK_EQUALS(s.index(), 1);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<1ul>().assigned, 0);
+    YAUL_VARIANT_CHECK_EQUALS(s.get<1ul>().value, 123);
   }
 }
 

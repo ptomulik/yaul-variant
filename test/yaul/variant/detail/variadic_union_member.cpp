@@ -121,8 +121,10 @@ static_assert( std::move(m_s1_rc).get().qual() == q_lr_c, "");
 struct S2
 {
   static int count;
-   S2() noexcept { ++ count; }
-   S2(const char*) { ++ count; } // intentionally not-noexcept
+  double d;
+   S2() noexcept : d(0.0) { ++ count; }
+   S2(const char*) : d(0.0) { ++ count; } // intentionally not-noexcept
+   S2(double d) noexcept : d(d) { ++count; }
   ~S2() noexcept { -- count; }
 
   qual_t qual()& noexcept { return q_lr; }
@@ -270,6 +272,10 @@ void test__variadic_union_member__with_S2()
   {
     M_S2 const volatile m{_0};
     YAUL_VARIANT_CHECK(std::move(m).get().qual() == q_rr_cv);
+  }
+  {
+    M_S2 m{_0, 1.2}; // checks the c-tor which uses placement new
+    YAUL_VARIANT_CHECK_EQUALS(m.get().d, 1.2);
   }
 #endif
   //
