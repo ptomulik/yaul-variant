@@ -10,6 +10,8 @@
 #include <utility>
 
 using yaul::detail::variant::variadic_storage;
+using yaul::detail::variant::make_variadic_storage;
+using yaul::detail::variant::make_variadic_storage_t;
 using yaul::detail::variant::in_place_index_t;
 
 struct fake_union
@@ -67,17 +69,20 @@ struct S1
 #endif
 };
 
-using S_S1 = variadic_storage<S1>;
+static_assert(std::is_same<make_variadic_storage<int,S1>::type, variadic_storage<true,int,S1> >::value, "");
+static_assert(std::is_same<make_variadic_storage_t<int,S1>, make_variadic_storage<int,S1>::type>::value, "");
+
+using S_S1 = make_variadic_storage_t<S1>;
 constexpr const S_S1 s_s1{_0};
 
 static_assert( std::is_trivially_destructible<S_S1>::value, "");
 static_assert(!std::is_default_constructible<S_S1>::value, "");
 static_assert(s_s1.index() == 0, "");
 
-// check noexpress-ness of certain expressions involving variadic_storage<..,S1,...>.
-static_assert( noexcept(std::declval<variadic_storage<S1>&>().~variadic_storage()), "");
-static_assert( noexcept(std::declval<variadic_storage<int,S1>&>().~variadic_storage()), "");
-static_assert( noexcept(std::declval<variadic_storage<int,S1,float>&>().~variadic_storage()), "");
+// check noexpress-ness of certain expressions involving make_variadic_storage_t<..,S1,...>.
+static_assert( noexcept(std::declval<make_variadic_storage_t<S1>&>().~variadic_storage()), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S1>&>().~variadic_storage()), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S1,float>&>().~variadic_storage()), "");
 
 struct S2
 {
@@ -87,25 +92,27 @@ struct S2
 };
 int S2::count = 0;
 
-// check noexpress-ness of certain expressions involving variadic_storage<..,S2,...>.
-static_assert( noexcept(std::declval<variadic_storage<S2>&>().~variadic_storage()), "");
-static_assert( noexcept(std::declval<variadic_storage<int,S2>&>().~variadic_storage()), "");
-static_assert( noexcept(std::declval<variadic_storage<int,S2,float>&>().~variadic_storage()), "");
+static_assert(std::is_same<make_variadic_storage<int,S2>::type, variadic_storage<false,int,S2> >::value, "");
+
+// check noexpress-ness of certain expressions involving make_variadic_storage_t<..,S2,...>.
+static_assert( noexcept(std::declval<make_variadic_storage_t<S2>&>().~variadic_storage()), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S2>&>().~variadic_storage()), "");
+static_assert( noexcept(std::declval<make_variadic_storage_t<int,S2,float>&>().~variadic_storage()), "");
 
 struct S3
 {
   ~S3() noexcept(false) { } // intentionally not-noexcept
 };
 
-// check noexpress-ness of certain expressions involving variadic_storage<..,S3,...>.
-static_assert(!noexcept(std::declval<variadic_storage<S3>&>().~variadic_storage()), "");
-static_assert(!noexcept(std::declval<variadic_storage<int,S3>&>().~variadic_storage()), "");
-static_assert(!noexcept(std::declval<variadic_storage<int,S3,float>&>().~variadic_storage()), "");
+// check noexpress-ness of certain expressions involving make_variadic_storage_t<..,S3,...>.
+static_assert(!noexcept(std::declval<make_variadic_storage_t<S3>&>().~variadic_storage()), "");
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3>&>().~variadic_storage()), "");
+static_assert(!noexcept(std::declval<make_variadic_storage_t<int,S3,float>&>().~variadic_storage()), "");
 
 void test__variadic_storage__with_S1()
 {
   {
-    variadic_storage<S1> s{_0};
+    make_variadic_storage_t<S1> s{_0};
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
   }
 }
@@ -114,7 +121,7 @@ void test__variadic_storage__with_S2()
 {
   const int count = S2::count;
   {
-    variadic_storage<S2> s{_0};
+    make_variadic_storage_t<S2> s{_0};
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
     YAUL_VARIANT_CHECK_EQUALS(S2::count, count+1);
   }
@@ -125,7 +132,7 @@ void test__variadic_storage__with_S1S2()
 {
   const int count = S2::count;
   {
-    variadic_storage<S1,S2> s{_0};
+    make_variadic_storage_t<S1,S2> s{_0};
     YAUL_VARIANT_CHECK_EQUALS(s.index(), 0);
     YAUL_VARIANT_CHECK_EQUALS(S2::count, count);
   }

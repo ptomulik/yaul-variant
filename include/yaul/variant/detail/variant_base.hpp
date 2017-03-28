@@ -20,18 +20,11 @@
 namespace yaul { namespace detail { namespace variant {
 
 template<typename Variant>
-  struct variant_base;
+  struct variant_base
+   : make_variant_storage_t<Variant>
+{
+};
 
-template<template <typename T0, typename...Others> V>
-  struct variant_base<V<T0, Others...> >
-    : std::conditional<
-      is_variant_template<V>::value
-    , variant_storage<T0, Others..>
-    , not_a_variant< V<T0, Others> > // nas no nested `type`
-    >
-  {
-    using Base = variant_storage<T0, Others..>;
-  };
 } } } // end namespace yaul::detail::variant
 
 #endif /* YAUL_VARIANT_DETAIL_VARIANT_BASE_HPP */
